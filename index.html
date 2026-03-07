@@ -212,6 +212,23 @@ html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-hei
 .review-confirm:hover{background:var(--brand-hover);}
 .review-cancel{height:50px;padding:0 18px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:14px;font-family:var(--font);font-size:14px;font-weight:600;color:var(--text-muted);cursor:pointer;}
 
+/* 영수증 확대 뷰어 */
+.zoom-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;align-items:center;justify-content:center;flex-direction:column;}
+.zoom-bg.show{display:flex;}
+.zoom-container{position:relative;width:100%;height:100%;overflow:hidden;touch-action:none;display:flex;align-items:center;justify-content:center;}
+.zoom-img{max-width:100%;max-height:100%;transform-origin:center center;transition:transform .1s ease;user-select:none;-webkit-user-drag:none;}
+.zoom-bar{position:fixed;bottom:0;left:0;right:0;padding:16px 20px 36px;display:flex;align-items:center;gap:12px;background:linear-gradient(transparent,rgba(0,0,0,.7));}
+.zoom-close{position:fixed;top:20px;right:20px;width:40px;height:40px;background:rgba(255,255,255,.15);border:none;border-radius:50%;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.zoom-btn{width:44px;height:44px;background:rgba(255,255,255,.15);border:none;border-radius:50%;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);flex-shrink:0;transition:background .15s;}
+.zoom-btn:hover{background:rgba(255,255,255,.3);}
+.zoom-scale{flex:1;-webkit-appearance:none;appearance:none;height:4px;background:rgba(255,255,255,.3);border-radius:2px;outline:none;cursor:pointer;}
+.zoom-scale::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:white;border-radius:50%;cursor:pointer;}
+.zoom-hint{position:fixed;top:70px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:12px;white-space:nowrap;}
+
+/* 영수증 미리보기 - 클릭 힌트 */
+.receipt-preview img{cursor:zoom-in;}
+.receipt-zoom-hint{font-size:11px;color:var(--brand-text);margin-top:4px;text-align:center;}
+
 /* 재료 수정 모달 */
 .edit-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:250;align-items:center;justify-content:center;padding:20px;}
 .edit-bg.show{display:flex;}
@@ -407,7 +424,8 @@ html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-hei
     <!-- 원본 영수증 사진 -->
     <div class="receipt-preview" id="receiptPreview">
       <div class="receipt-preview-label">📄 원본 영수증 (비교하며 확인하세요)</div>
-      <img id="receiptImg" src="" alt="영수증" />
+      <img id="receiptImg" src="" alt="영수증" onclick="openZoom()" />
+      <div class="receipt-zoom-hint">🔍 탭하면 확대돼요</div>
     </div>
     <div class="review-list" id="reviewList"></div>
     <!-- 누락 재료 직접 추가 -->
@@ -458,6 +476,21 @@ html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-hei
       <button class="edit-cancel" onclick="closeEdit()">취소</button>
       <button class="edit-save"   onclick="saveEdit()">저장</button>
     </div>
+  </div>
+</div>
+
+<!-- 영수증 확대 뷰어 -->
+<div class="zoom-bg" id="zoomBg">
+  <button class="zoom-close" onclick="closeZoom()">✕</button>
+  <div class="zoom-hint">핀치로 확대 · 드래그로 이동</div>
+  <div class="zoom-container" id="zoomContainer">
+    <img class="zoom-img" id="zoomImg" src="" alt="영수증 확대" />
+  </div>
+  <div class="zoom-bar">
+    <button class="zoom-btn" onclick="zoomOut()">−</button>
+    <input type="range" class="zoom-scale" id="zoomScale" min="100" max="400" value="100" oninput="setZoom(this.value)" />
+    <button class="zoom-btn" onclick="zoomIn()">+</button>
+    <button class="zoom-btn" onclick="resetZoom()" style="font-size:13px;">↺</button>
   </div>
 </div>
 
@@ -759,6 +792,69 @@ function closeReview(){
   document.getElementById('receiptPreview').style.display='none';
   reviewItems=[];
 }
+
+// ── 영수증 확대 뷰어 ──
+let zoomLevel = 100;
+let isDragging = false;
+let dragStart = {x:0, y:0};
+let translate = {x:0, y:0};
+let lastTranslate = {x:0, y:0};
+
+function openZoom() {
+  const src = document.getElementById('receiptImg').src;
+  if (!src) return;
+  document.getElementById('zoomImg').src = src;
+  zoomLevel = 100;
+  translate = {x:0, y:0};
+  applyZoom();
+  document.getElementById('zoomScale').value = 100;
+  document.getElementById('zoomBg').classList.add('show');
+  // 핀치 줌 이벤트
+  setupPinch();
+  // 드래그 이벤트
+  setupDrag();
+}
+
+function closeZoom() {
+  document.getElementById('zoomBg').classList.remove('show');
+  cleanupPinch();
+}
+
+function applyZoom() {
+  const img = document.getElementById('zoomImg');
+  img.style.transform = `translate(${translate.x}px, ${translate.y}px) scale(${zoomLevel/100})`;
+  document.getElementById('zoomScale').value = zoomLevel;
+}
+
+function zoomIn()  { zoomLevel = Math.min(400, zoomLevel + 30); applyZoom(); }
+function zoomOut() { zoomLevel = Math.max(100, zoomLevel - 30); if(zoomLevel<=100) translate={x:0,y:0}; applyZoom(); }
+function resetZoom() { zoomLevel=100; translate={x:0,y:0}; applyZoom(); }
+function setZoom(v) { zoomLevel=parseInt(v); if(zoomLevel<=100) translate={x:0,y:0}; applyZoom(); }
+
+function setupDrag() {
+  const img = document.getElementById('zoomImg');
+  img.onmousedown = e => { isDragging=true; dragStart={x:e.clientX-translate.x, y:e.clientY-translate.y}; };
+  img.ontouchstart = e => { if(e.touches.length===1){ isDragging=true; dragStart={x:e.touches[0].clientX-translate.x, y:e.touches[0].clientY-translate.y}; }};
+  document.getElementById('zoomBg').onmousemove = e => { if(!isDragging||zoomLevel<=100) return; translate={x:e.clientX-dragStart.x, y:e.clientY-dragStart.y}; applyZoom(); };
+  document.getElementById('zoomBg').ontouchmove = e => { if(e.touches.length===1&&isDragging&&zoomLevel>100){ translate={x:e.touches[0].clientX-dragStart.x, y:e.touches[0].clientY-dragStart.y}; applyZoom(); }};
+  document.getElementById('zoomBg').onmouseup = () => { isDragging=false; };
+  document.getElementById('zoomBg').ontouchend = () => { isDragging=false; };
+}
+
+let pinchStartDist = 0;
+let pinchStartZoom = 100;
+function setupPinch() {
+  const c = document.getElementById('zoomContainer');
+  c.addEventListener('touchstart', onPinchStart, {passive:true});
+  c.addEventListener('touchmove',  onPinchMove,  {passive:true});
+}
+function cleanupPinch() {
+  const c = document.getElementById('zoomContainer');
+  c.removeEventListener('touchstart', onPinchStart);
+  c.removeEventListener('touchmove',  onPinchMove);
+}
+function onPinchStart(e) { if(e.touches.length===2){ pinchStartDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); pinchStartZoom=zoomLevel; }}
+function onPinchMove(e)  { if(e.touches.length===2){ const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); zoomLevel=Math.min(400,Math.max(100,Math.round(pinchStartZoom*(d/pinchStartDist)))); applyZoom(); }}
 
 // ── 재료 수정 모달 ──
 let editIdx=-1;
