@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>냉파고</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/sand.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/sand-dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/orange.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/orange-dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/green.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/green-dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/red.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/red-dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/amber.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/amber-dark.css">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+
+:root {
+  --font: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  --bg:            var(--sand-1);
+  --bg-subtle:     var(--sand-2);
+  --bg-ui:         var(--sand-3);
+  --border:        var(--sand-5);
+  --border-hi:     var(--sand-7);
+  --text:          var(--sand-12);
+  --text-sub:      var(--sand-11);
+  --text-muted:    var(--sand-10);
+  --brand:         var(--orange-9);
+  --brand-hover:   var(--orange-10);
+  --brand-subtle:  var(--orange-3);
+  --brand-border:  var(--orange-6);
+  --brand-text:    var(--orange-11);
+  --success:       var(--green-9);
+  --success-subtle:var(--green-3);
+  --success-text:  var(--green-11);
+  --danger:        var(--red-9);
+  --danger-subtle: var(--red-3);
+  --danger-border: var(--red-6);
+  --danger-text:   var(--red-11);
+  --warn-subtle:   var(--amber-3);
+  --warn-border:   var(--amber-6);
+  --warn-text:     var(--amber-11);
+}
+
+html, body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+}
+
+.app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ── 탑바 ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 20px 0;
+}
+.logo-row { display: flex; align-items: center; gap: 8px; }
+.logo-icon {
+  width: 34px; height: 34px;
+  background: var(--brand); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.logo-text { font-size: 18px; font-weight: 800; letter-spacing: -.5px; }
+.api-btn {
+  width: 34px; height: 34px;
+  background: var(--bg-subtle); border: 1px solid var(--border);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer; transition: background .15s;
+}
+.api-btn:hover { background: var(--bg-ui); }
+
+/* ── API 패널 ── */
+.api-panel {
+  margin: 12px 20px 0;
+  background: var(--bg-subtle); border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px; display: none;
+  animation: fadeUp .2s ease both;
+}
+.api-panel.show { display: block; }
+.api-row { display: flex; gap: 8px; }
+.api-row input {
+  flex: 1; height: 40px; padding: 0 12px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  font-family: var(--font); font-size: 13px; color: var(--text); outline: none;
+  transition: border-color .15s;
+}
+.api-row input:focus { border-color: var(--brand); }
+.api-row input::placeholder { color: var(--text-muted); font-size: 12px; }
+.api-save {
+  height: 40px; padding: 0 16px;
+  background: var(--brand); color: white; border: none; border-radius: 10px;
+  font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background .15s; white-space: nowrap;
+}
+.api-save:hover { background: var(--brand-hover); }
+.api-hint { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+.api-hint a { color: var(--brand-text); text-decoration: none; }
+
+/* ── 스크롤 ── */
+.scroll { flex: 1; overflow-y: auto; padding: 20px 20px 100px; display: flex; flex-direction: column; gap: 16px; }
+
+/* ── 긴급 배너 (유통기한 임박) ── */
+.urgent-banner {
+  background: var(--danger-subtle); border: 1px solid var(--danger-border);
+  border-radius: 16px; padding: 14px 16px; cursor: pointer;
+  transition: transform .15s; display: none;
+  animation: fadeUp .3s ease both;
+}
+.urgent-banner.show { display: block; }
+.urgent-banner:hover { transform: translateY(-1px); }
+.urgent-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.urgent-badge {
+  background: var(--danger); color: white;
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px;
+}
+.urgent-title { font-size: 14px; font-weight: 700; color: var(--danger-text); }
+.urgent-desc { font-size: 13px; color: var(--danger-text); opacity: .8; line-height: 1.4; }
+.urgent-cta {
+  margin-top: 10px; width: 100%; height: 38px;
+  background: var(--danger); color: white; border: none; border-radius: 10px;
+  font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: opacity .15s;
+}
+.urgent-cta:hover { opacity: .9; }
+
+/* ── 히어로 ── */
+.hero-card {
+  background: linear-gradient(145deg, var(--brand-subtle), var(--bg-subtle));
+  border: 1px solid var(--brand-border); border-radius: 24px; padding: 26px 24px;
+  text-align: center; cursor: pointer; position: relative; overflow: hidden;
+  transition: transform .15s, box-shadow .15s;
+  animation: fadeUp .4s ease both;
+}
+.hero-card::before {
+  content: ''; position: absolute; top: -30px; right: -30px;
+  width: 100px; height: 100px; background: var(--brand-border);
+  border-radius: 50%; opacity: .25;
+}
+.hero-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px color-mix(in srgb, var(--brand) 15%, transparent); }
+.hero-card:active { transform: scale(.98); }
+.hero-emoji { font-size: 44px; display: block; margin-bottom: 10px; }
+.hero-title { font-size: 19px; font-weight: 800; letter-spacing: -.4px; margin-bottom: 5px; }
+.hero-desc { font-size: 13px; color: var(--text-sub); line-height: 1.5; margin-bottom: 18px; }
+.hero-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 46px; padding: 0 26px;
+  background: var(--brand); color: white; border: none; border-radius: 13px;
+  font-family: var(--font); font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: background .15s;
+}
+.hero-btn:hover { background: var(--brand-hover); }
+#receiptInput { display: none; }
+
+/* ── 섹션 타이틀 ── */
+.sec-title { font-size: 13px; font-weight: 600; color: var(--text-muted); letter-spacing: .3px; padding-left: 2px; }
+
+/* ── 냉장고 카드 ── */
+.fridge-card {
+  background: var(--bg-subtle); border: 1px solid var(--border);
+  border-radius: 20px; overflow: hidden;
+  animation: fadeUp .4s .1s ease both;
+}
+
+/* 탭 */
+.fridge-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.ftab {
+  flex: 1; height: 42px; background: none; border: none;
+  font-family: var(--font); font-size: 13px; font-weight: 500;
+  color: var(--text-muted); cursor: pointer; transition: color .15s, background .15s;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.ftab.active { color: var(--brand); font-weight: 700; background: var(--brand-subtle); }
+.ftab:first-child { border-radius: 20px 0 0 0; }
+.ftab:last-child  { border-radius: 0 20px 0 0; }
+
+.fridge-body { padding: 16px; }
+
+.fridge-empty { text-align: center; padding: 20px 0; color: var(--text-muted); font-size: 13px; }
+.fridge-empty-icon { font-size: 32px; display: block; margin-bottom: 6px; }
+
+.fridge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+.fridge-item {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+  padding: 10px 8px; text-align: center; position: relative;
+  animation: popIn .18s ease both;
+  transition: border-color .15s;
+}
+.fridge-item.urgent  { background: var(--danger-subtle); border-color: var(--danger-border); }
+.fridge-item.warning { background: var(--warn-subtle);   border-color: var(--warn-border); }
+.fridge-item-emoji { font-size: 20px; display: block; margin-bottom: 3px; }
+.fridge-item-name  { font-size: 11px; font-weight: 600; color: var(--text); display: block; }
+.fridge-item-date  { font-size: 10px; color: var(--text-muted); display: block; margin-top: 2px; }
+.fridge-item.urgent  .fridge-item-date { color: var(--danger-text); font-weight: 700; }
+.fridge-item.warning .fridge-item-date { color: var(--warn-text);   font-weight: 600; }
+.fridge-item-del {
+  position: absolute; top: 4px; right: 4px;
+  width: 15px; height: 15px; background: var(--border); border: none;
+  border-radius: 50%; font-size: 9px; color: var(--text-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .15s;
+}
+.fridge-item:hover .fridge-item-del { opacity: 1; }
+
+.fridge-add-row { display: flex; gap: 8px; margin-top: 12px; }
+.fridge-add-select {
+  height: 38px; padding: 0 10px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  font-family: var(--font); font-size: 13px; color: var(--text); outline: none; cursor: pointer;
+  appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center; padding-right: 24px;
+  transition: border-color .15s;
+}
+.fridge-add-select:focus { border-color: var(--brand); }
+.fridge-add-input {
+  flex: 1; height: 38px; padding: 0 12px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  font-family: var(--font); font-size: 14px; color: var(--text); outline: none;
+  transition: border-color .15s;
+}
+.fridge-add-input:focus { border-color: var(--brand); }
+.fridge-add-input::placeholder { color: var(--text-muted); }
+.fridge-add-btn {
+  width: 38px; height: 38px; background: var(--brand); color: white;
+  border: none; border-radius: 10px; font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, transform .1s; flex-shrink: 0;
+}
+.fridge-add-btn:hover { background: var(--brand-hover); }
+.fridge-add-btn:active { transform: scale(.93); }
+
+/* ── 빠른 기능 ── */
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; animation: fadeUp .4s .2s ease both; }
+.quick-card {
+  background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 18px;
+  padding: 16px 14px; cursor: pointer; transition: transform .15s, border-color .15s;
+}
+.quick-card:hover { transform: translateY(-2px); border-color: var(--border-hi); }
+.quick-card:active { transform: scale(.97); }
+.quick-icon { font-size: 26px; display: block; margin-bottom: 8px; }
+.quick-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.quick-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+/* ── 오버레이 ── */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px); z-index: 100;
+  align-items: center; justify-content: center; flex-direction: column;
+}
+.overlay.show { display: flex; }
+.overlay-box {
+  background: var(--bg-subtle); border: 1px solid var(--border);
+  border-radius: 24px; padding: 32px 40px; text-align: center;
+}
+.dots { display: inline-flex; gap: 5px; margin-bottom: 12px; }
+.dots span {
+  width: 8px; height: 8px; background: var(--brand); border-radius: 50%;
+  animation: db 1.2s infinite ease-in-out both;
+}
+.dots span:nth-child(2) { animation-delay: .15s; }
+.dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes db { 0%,80%,100%{transform:scale(.55);opacity:.35;} 40%{transform:scale(1);opacity:1;} }
+.overlay-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.overlay-desc  { font-size: 13px; color: var(--text-muted); }
+
+/* ── 결과 모달 ── */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 200;
+  align-items: flex-end; justify-content: center;
+}
+.modal-bg.show { display: flex; }
+.modal {
+  background: var(--bg); border-radius: 28px 28px 0 0;
+  width: 100%; max-width: 430px; max-height: 85vh; overflow-y: auto;
+  padding-bottom: 40px; animation: slideUp .3s ease both;
+}
+@keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
+.modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 14px auto 0; }
+.modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); }
+.modal-title { font-size: 18px; font-weight: 800; letter-spacing: -.4px; }
+.modal-sub   { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+.modal-body  { padding: 20px 24px; }
+.modal-body pre { font-family: var(--font); font-size: 14px; line-height: 1.85; color: var(--text); white-space: pre-wrap; word-break: keep-all; }
+.modal-close {
+  width: calc(100% - 48px); height: 48px; margin: 0 24px;
+  background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 14px;
+  font-family: var(--font); font-size: 14px; font-weight: 600; color: var(--text-sub);
+  cursor: pointer; transition: border-color .15s;
+}
+.modal-close:hover { border-color: var(--border-hi); }
+
+/* ── 도파민 팝업 ── */
+.dopamine {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  align-items: center; justify-content: center;
+  background: rgba(0,0,0,.5); backdrop-filter: blur(6px);
+}
+.dopamine.show { display: flex; }
+.dopamine-box {
+  background: var(--bg); border-radius: 28px; padding: 36px 32px;
+  text-align: center; max-width: 300px; width: 90%;
+  animation: popIn .3s ease both;
+}
+.dopamine-emoji { font-size: 56px; display: block; margin-bottom: 12px; animation: bounce 1s infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+.dopamine-title { font-size: 20px; font-weight: 800; letter-spacing: -.4px; margin-bottom: 8px; color: var(--text); }
+.dopamine-msg   { font-size: 14px; color: var(--text-sub); line-height: 1.5; margin-bottom: 20px; }
+.dopamine-save  {
+  font-size: 22px; font-weight: 800; color: var(--success-text);
+  background: var(--success-subtle); border-radius: 12px; padding: 8px 20px;
+  display: inline-block; margin-bottom: 20px;
+}
+.dopamine-btn {
+  width: 100%; height: 48px; background: var(--brand); color: white;
+  border: none; border-radius: 14px; font-family: var(--font);
+  font-size: 15px; font-weight: 700; cursor: pointer; transition: background .15s;
+}
+.dopamine-btn:hover { background: var(--brand-hover); }
+
+/* ── 바텀탭 ── */
+.bottomnav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; background: var(--bg);
+  border-top: 1px solid var(--border); display: flex; padding: 10px 0 20px;
+}
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 0; }
+.tab.active .tab-icon  { color: var(--brand); }
+.tab.active .tab-label { color: var(--brand); font-weight: 600; }
+.tab-icon  { font-size: 22px; }
+.tab-label { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+
+/* ── 유틸 ── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+@keyframes popIn  { from{transform:scale(.8);opacity:0;} to{transform:scale(1);opacity:1;} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- 탑바 -->
+  <div class="topbar">
+    <div class="logo-row">
+      <div class="logo-icon">🧊</div>
+      <span class="logo-text">냉파고</span>
+    </div>
+    <button class="api-btn" onclick="toggleApi()">⚙️</button>
+  </div>
+
+  <!-- API 패널 -->
+  <div class="api-panel" id="apiPanel">
+    <div class="api-row">
+      <input type="password" id="apiKey" placeholder="Claude API 키 (sk-ant-...)" />
+      <button class="api-save" onclick="saveApi()">저장</button>
+    </div>
+    <p class="api-hint">이 기기에만 저장돼요 · <a href="https://console.anthropic.com" target="_blank">키 발급 →</a></p>
+  </div>
+
+  <div class="scroll">
+
+    <!-- 유통기한 임박 배너 -->
+    <div class="urgent-banner" id="urgentBanner" onclick="runUrgentMenu()">
+      <div class="urgent-top">
+        <span class="urgent-badge">⚠️ 유통기한 임박</span>
+        <span class="urgent-title" id="urgentTitle"></span>
+      </div>
+      <div class="urgent-desc" id="urgentDesc"></div>
+      <button class="urgent-cta">🍳 이 재료로 지금 바로 요리 추천받기</button>
+    </div>
+
+    <!-- 히어로: 영수증 찍기 -->
+    <div class="hero-card" onclick="document.getElementById('receiptInput').click()">
+      <span class="hero-emoji">📸</span>
+      <div class="hero-title">영수증 찍으면<br>냉장고 자동 완성</div>
+      <div class="hero-desc">마트 영수증 사진 한 장으로<br>재료를 한번에 등록해요</div>
+      <button class="hero-btn">📷 영수증 불러오기</button>
+    </div>
+    <input type="file" id="receiptInput" accept="image/*" onchange="handleReceipt(event)" />
+
+    <!-- 냉장고 지도 -->
+    <div class="sec-title">🧊 냉장고 지도</div>
+    <div class="fridge-card">
+      <div class="fridge-tabs">
+        <button class="ftab active" onclick="switchTab('fridge')"   id="tab-fridge">❄️ 냉장</button>
+        <button class="ftab"        onclick="switchTab('freezer')"  id="tab-freezer">🧊 냉동</button>
+        <button class="ftab"        onclick="switchTab('pantry')"   id="tab-pantry">🌡️ 실온</button>
+      </div>
+      <div class="fridge-body">
+        <div id="fridgeContent"></div>
+        <div class="fridge-add-row">
+          <select class="fridge-add-select" id="addZone">
+            <option value="fridge">냉장</option>
+            <option value="freezer">냉동</option>
+            <option value="pantry">실온</option>
+          </select>
+          <input type="text" class="fridge-add-input" id="manualInput"
+                 placeholder="재료 직접 추가"
+                 onkeypress="if(event.key==='Enter') addManual()" />
+          <button class="fridge-add-btn" onclick="addManual()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 빠른 기능 -->
+    <div class="sec-title">✨ 무엇을 도와드릴까요?</div>
+    <div class="quick-grid">
+      <div class="quick-card" onclick="runMenu('오늘 식단')">
+        <span class="quick-icon">🍱</span>
+        <div class="quick-name">오늘 뭐 먹지?</div>
+        <div class="quick-desc">메인반찬 + 국 + 반찬 한식 조합</div>
+      </div>
+      <div class="quick-card" onclick="runMenu('반찬 추천')">
+        <span class="quick-icon">🥬</span>
+        <div class="quick-name">반찬 추천</div>
+        <div class="quick-desc">있는 재료로 만들 수 있는 반찬</div>
+      </div>
+      <div class="quick-card" onclick="runMenu('일주일 식단')">
+        <span class="quick-icon">📅</span>
+        <div class="quick-name">일주일 식단표</div>
+        <div class="quick-desc">냉장고 파먹는 식단 자동 생성</div>
+      </div>
+      <div class="quick-card" onclick="runMenu('장보기 리스트')">
+        <span class="quick-icon">🛒</span>
+        <div class="quick-name">장보기 리스트</div>
+        <div class="quick-desc">부족한 재료 자동 작성</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 바텀탭 -->
+  <nav class="bottomnav">
+    <div class="tab active"><span class="tab-icon">🏠</span><span class="tab-label">홈</span></div>
+    <div class="tab"><span class="tab-icon">🧊</span><span class="tab-label">냉장고</span></div>
+    <div class="tab"><span class="tab-icon">🍱</span><span class="tab-label">식단표</span></div>
+    <div class="tab"><span class="tab-icon">📊</span><span class="tab-label">식비통계</span></div>
+  </nav>
+</div>
+
+<!-- 로딩 오버레이 -->
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="overlay-title" id="overlayTitle">분석 중...</div>
+    <div class="overlay-desc"  id="overlayDesc">잠깐만요!</div>
+  </div>
+</div>
+
+<!-- 결과 모달 -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">결과</div>
+      <div class="modal-sub"   id="modalSub"></div>
+    </div>
+    <div class="modal-body"><pre id="modalBody"></pre></div>
+    <button class="modal-close" onclick="closeModal()">닫기</button>
+  </div>
+</div>
+
+<!-- 도파민 팝업 -->
+<div class="dopamine" id="dopamine">
+  <div class="dopamine-box">
+    <span class="dopamine-emoji">🎉</span>
+    <div class="dopamine-title">냉파 성공!</div>
+    <div class="dopamine-msg" id="dopamineMsg"></div>
+    <div class="dopamine-save" id="dopamineSave"></div>
+    <button class="dopamine-btn" onclick="closeDopamine()">최고야! 닫기</button>
+  </div>
+</div>
+
+<script>
+// ── 상태 ──
+let fridge  = JSON.parse(localStorage.getItem('ng_fridge')  || '[]');
+let apiKey  = localStorage.getItem('ng_api') || '';
+let curTab  = 'fridge';
+let savedTotal = parseInt(localStorage.getItem('ng_saved') || '0');
+
+if (apiKey) document.getElementById('apiKey').value = apiKey;
+
+const EMOJI_MAP = {
+  '계란':'🥚','달걀':'🥚','두부':'🫙','김치':'🥬','돼지':'🥩','소고기':'🥩','쇠고기':'🥩',
+  '닭':'🍗','대파':'🌿','파':'🌿','양파':'🧅','마늘':'🧄','감자':'🥔','당근':'🥕',
+  '시금치':'🥬','버섯':'🍄','콩나물':'🌱','고추':'🌶️','참치':'🐟','어묵':'🍢',
+  '햄':'🥓','소세지':'🌭','라면':'🍜','쌀':'🍚','된장':'🫙','간장':'🫙',
+  '고추장':'🫙','참기름':'🫙','우유':'🥛','치즈':'🧀','두유':'🥛',
+  '새우':'🦐','오징어':'🦑','게':'🦀','조개':'🐚','멸치':'🐟',
+  '깻잎':'🌿','상추':'🥬','배추':'🥬','무':'🫚','호박':'🎃',
+};
+
+function getEmoji(name) {
+  for (const [k, v] of Object.entries(EMOJI_MAP)) {
+    if (name.includes(k)) return v;
+  }
+  return '🥘';
+}
+
+// ── API ──
+function toggleApi() { document.getElementById('apiPanel').classList.toggle('show'); }
+function saveApi() {
+  const v = document.getElementById('apiKey').value.trim();
+  if (!v) return;
+  apiKey = v;
+  localStorage.setItem('ng_api', v);
+  document.getElementById('apiPanel').classList.remove('show');
+  toast('API 키 저장 완료 ✅');
+}
+
+// ── 냉장고 저장/렌더 ──
+function saveFridge() { localStorage.setItem('ng_fridge', JSON.stringify(fridge)); }
+
+function renderFridge() {
+  const items = fridge.filter(i => i.zone === curTab);
+  const c = document.getElementById('fridgeContent');
+
+  if (!items.length) {
+    c.innerHTML = `<div class="fridge-empty">
+      <span class="fridge-empty-icon">${curTab==='fridge'?'🫙':curTab==='freezer'?'🧊':'📦'}</span>
+      ${curTab==='fridge'?'냉장실이 비어있어요':''}
+      ${curTab==='freezer'?'냉동실이 비어있어요':''}
+      ${curTab==='pantry'?'실온 보관 재료가 없어요':''}
+    </div>`;
+  } else {
+    c.innerHTML = `<div class="fridge-grid">${
+      items.map((item) => {
+        const idx = fridge.indexOf(item);
+        return `<div class="fridge-item ${item.urgent?'urgent':item.warning?'warning':''}">
+          <span class="fridge-item-emoji">${getEmoji(item.name)}</span>
+          <span class="fridge-item-name">${item.name}</span>
+          <span class="fridge-item-date">${item.date||''}</span>
+          <button class="fridge-item-del" onclick="eatItem(${idx})">×</button>
+        </div>`;
+      }).join('')
+    }</div>`;
+  }
+
+  // 탭 카운트
+  ['fridge','freezer','pantry'].forEach(zone => {
+    const count = fridge.filter(i=>i.zone===zone).length;
+    const labels = {fridge:'❄️ 냉장', freezer:'🧊 냉동', pantry:'🌡️ 실온'};
+    document.getElementById('tab-'+zone).textContent = labels[zone] + (count ? ` ${count}` : '');
+  });
+
+  checkUrgent();
+}
+
+function switchTab(zone) {
+  curTab = zone;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+zone).classList.add('active');
+  renderFridge();
+}
+
+// 재료 먹음 처리 → 도파민 팝업
+function eatItem(idx) {
+  const item = fridge[idx];
+  const saved = Math.floor(Math.random() * 8000) + 5000; // 5000~13000원 추정
+  savedTotal += saved;
+  localStorage.setItem('ng_saved', savedTotal);
+  fridge.splice(idx, 1);
+  saveFridge(); renderFridge();
+  showDopamine(item.name, saved);
+}
+
+// 유통기한 임박 배너
+function checkUrgent() {
+  const urgents = fridge.filter(i => i.urgent);
+  const banner = document.getElementById('urgentBanner');
+  if (!urgents.length) { banner.classList.remove('show'); return; }
+
+  const names = urgents.map(i=>i.name).join(', ');
+  document.getElementById('urgentTitle').textContent = `${urgents.length}개 재료 주의`;
+  document.getElementById('urgentDesc').textContent  = `${names} 유통기한이 얼마 안 남았어요! 오늘 요리에 써보세요 🍳`;
+  banner.classList.add('show');
+}
+
+async function runUrgentMenu() {
+  const urgents = fridge.filter(i => i.urgent);
+  if (!urgents.length) return;
+  const names = urgents.map(i=>i.name).join(', ');
+  await runMenuWithIngredients('긴급 요리 추천', `유통기한 임박 재료: ${names}\n이 재료들을 오늘 안에 소진할 수 있는 한식 요리를 추천해줘. 명분을 줘: "이 재료들 오늘 안에 써야 해요! 이렇게 해먹으면 딱이에요~" 식으로.`);
+}
+
+function addManual() {
+  const el   = document.getElementById('manualInput');
+  const zone = document.getElementById('addZone').value;
+  const v    = el.value.trim();
+  if (!v) return;
+  fridge.push({ name: v, zone, date: '', urgent: false, warning: false });
+  saveFridge(); renderFridge();
+  el.value = ''; el.focus();
+}
+
+// ── 영수증 인식 ──
+async function handleReceipt(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!apiKey) { toast('먼저 API 키를 설정해주세요 ⚙️'); toggleApi(); return; }
+
+  showOverlay('📸 영수증 분석 중...', 'AI가 재료를 읽고 있어요');
+
+  const base64    = await toBase64(file);
+  const mediaType = file.type || 'image/jpeg';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+            { type: 'text', text: `이 영수증에서 식재료/식품만 추출해줘.
+세제, 화장품, 생활용품 제외. 식재료만.
+아래 JSON 형식으로만 답해줘. 다른 텍스트 없이:
+{
+  "summary": {"육류": 1, "채소": 2, "기타": 1},
+  "items": [
+    {"name":"재료명", "zone":"fridge", "date":"3일내", "urgent":false, "warning":false}
+  ]
+}
+zone은 fridge(냉장)/freezer(냉동)/pantry(실온) 중 하나.
+date는 "3일내","1주","2주","1달" 중 추정.
+urgent는 3일내면 true, warning은 1주면 true.` }
+          ]
+        }]
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || '오류');
+
+    const text = data.content[0].text.trim();
+    const json = JSON.parse(text.replace(/```json|```/g, '').trim());
+
+    fridge = [...fridge, ...json.items];
+    saveFridge(); renderFridge();
+    hideOverlay();
+
+    // 카테고리 요약 토스트
+    const summary = json.summary;
+    const summaryText = Object.entries(summary).map(([k,v])=>`${k} ${v}개`).join(', ');
+    toast(`${json.items.length}개 등록 완료! (${summaryText}) 🎉`);
+
+  } catch (err) {
+    hideOverlay();
+    toast('인식 실패: ' + err.message);
+  }
+  e.target.value = '';
+}
+
+// ── 메뉴 추천 ──
+async function runMenu(type) {
+  if (!apiKey) { toast('먼저 API 키를 설정해주세요 ⚙️'); toggleApi(); return; }
+  if (!fridge.length) { toast('먼저 냉장고에 재료를 추가해주세요 🧊'); return; }
+
+  const ingList = fridge.map(i => i.name).join(', ');
+  const urgentList = fridge.filter(i=>i.urgent).map(i=>i.name).join(', ');
+
+  const prompts = {
+    '오늘 식단': `냉장고 재료: ${ingList}
+${urgentList ? `⚠️ 유통기한 임박 재료: ${urgentList} → 이 재료를 우선 활용해줘!` : ''}
+오늘 저녁 한식 식단을 짜줘.
+메인반찬 1개 + 국 또는 찌개 1개 + 반찬 2개 조합으로.
+유통기한 임박 재료가 있으면 "오늘 꼭 써야 해요!" 강조해줘.
+각 요리마다 간단한 조리법도. 말투는 친근하게.`,
+
+    '반찬 추천': `냉장고 재료: ${ingList}
+이 재료로 만들 수 있는 한식 반찬 5가지 추천해줘.
+각 반찬: 재료, 조리 시간, 난이도(쉬움/보통/어려움).
+말투는 친근하게.`,
+
+    '일주일 식단': `냉장고 재료: ${ingList}
+${urgentList ? `⚠️ 유통기한 임박: ${urgentList} → 이번 주 초반에 먼저 써줘!` : ''}
+냉장고를 최대한 파먹는 일주일 저녁 식단표.
+월~일 / 메인반찬 + 국/찌개 + 반찬 1개 조합.
+재료 소진 순서 고려 (유통기한 짧은 것 먼저).
+말투는 친근하게.`,
+
+    '장보기 리스트': `냉장고 재료: ${ingList}
+한국 가정 기준 이번 주 장보기 리스트.
+집에 있는 재료는 제외, 부족한 것만.
+카테고리별 (채소/육류/생선/냉동/기타).
+예상 금액도 대략 써줘. 말투는 친근하게.`
+  };
+
+  await runMenuWithIngredients(
+    {
+      '오늘 식단':'🍱 오늘의 식단 추천',
+      '반찬 추천':'🥬 반찬 추천',
+      '일주일 식단':'📅 일주일 식단표',
+      '장보기 리스트':'🛒 장보기 리스트'
+    }[type],
+    prompts[type]
+  );
+}
+
+async function runMenuWithIngredients(title, prompt) {
+  showOverlay('🤔 생각 중...', 'AI가 최적 메뉴를 고르고 있어요');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || '오류');
+    hideOverlay();
+    openModal(title, `냉장고 재료 ${fridge.length}개 기반`, data.content[0].text);
+  } catch (err) {
+    hideOverlay();
+    toast('오류: ' + err.message);
+  }
+}
+
+// ── 모달 ──
+function openModal(title, sub, body) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalSub').textContent   = sub;
+  document.getElementById('modalBody').textContent  = body;
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalBg'))
+    document.getElementById('modalBg').classList.remove('show');
+}
+
+// ── 도파민 팝업 ──
+function showDopamine(name, saved) {
+  const msgs = [
+    `${name} 냉파 완료! 배달 안 시키고 버텼어요 💪`,
+    `${name} 처리 완료! 오늘도 냉장고 파먹기 성공 🏆`,
+    `${name} 해치웠다! 유통기한 사수 완료 🥳`,
+  ];
+  document.getElementById('dopamineMsg').textContent  = msgs[Math.floor(Math.random()*msgs.length)];
+  document.getElementById('dopamineSave').textContent = `💰 ${saved.toLocaleString()}원 방어 성공!`;
+  document.getElementById('dopamine').classList.add('show');
+}
+function closeDopamine() { document.getElementById('dopamine').classList.remove('show'); }
+
+// ── 오버레이 ──
+function showOverlay(t, d) {
+  document.getElementById('overlayTitle').textContent = t;
+  document.getElementById('overlayDesc').textContent  = d;
+  document.getElementById('overlay').classList.add('show');
+}
+function hideOverlay() { document.getElementById('overlay').classList.remove('show'); }
+
+// ── 토스트 ──
+function toast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+    background:var(--sand-12);color:var(--sand-1);padding:10px 20px;border-radius:100px;
+    font-size:13px;font-weight:500;z-index:999;white-space:nowrap;animation:fadeUp .2s ease both;
+    font-family:var(--font);`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2800);
+}
+
+// ── 유틸 ──
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload  = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// ── 초기화 ──
+renderFridge();
+</script>
+</body>
+</html>
