@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>냉파고</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/sand.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/sand-dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/orange.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/orange-dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/green.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/green-dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/red.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/red-dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/amber.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@radix-ui/colors@latest/amber-dark.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+:root{
+  --font:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;
+  --bg:var(--sand-1);--bg-subtle:var(--sand-2);--bg-ui:var(--sand-3);
+  --border:var(--sand-5);--border-hi:var(--sand-7);
+  --text:var(--sand-12);--text-sub:var(--sand-11);--text-muted:var(--sand-10);
+  --brand:var(--orange-9);--brand-hover:var(--orange-10);
+  --brand-subtle:var(--orange-3);--brand-border:var(--orange-6);--brand-text:var(--orange-11);
+  --success:var(--green-9);--success-subtle:var(--green-3);--success-text:var(--green-11);
+  --danger:var(--red-9);--danger-subtle:var(--red-3);--danger-border:var(--red-6);--danger-text:var(--red-11);
+  --warn-subtle:var(--amber-3);--warn-border:var(--amber-6);--warn-text:var(--amber-11);
+}
+html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
+.app{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+
+/* 탑바 */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0;}
+.logo-row{display:flex;align-items:center;gap:8px;}
+.logo-icon{width:34px;height:34px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-text{font-size:18px;font-weight:800;letter-spacing:-.5px;}
+.api-btn{width:34px;height:34px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:background .15s;}
+.api-btn:hover{background:var(--bg-ui);}
+
+/* API 패널 */
+.api-panel{margin:12px 20px 0;background:var(--bg-subtle);border:1px solid var(--border);border-radius:16px;padding:16px;display:none;animation:fadeUp .2s ease both;}
+.api-panel.show{display:block;}
+.api-row{display:flex;gap:8px;}
+.api-row input{flex:1;height:40px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-family:var(--font);font-size:13px;color:var(--text);outline:none;transition:border-color .15s;}
+.api-row input:focus{border-color:var(--brand);}
+.api-row input::placeholder{color:var(--text-muted);font-size:12px;}
+.api-save{height:40px;padding:0 16px;background:var(--brand);color:white;border:none;border-radius:10px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s;}
+.api-save:hover{background:var(--brand-hover);}
+.api-hint{font-size:11px;color:var(--text-muted);margin-top:8px;}
+.api-hint a{color:var(--brand-text);text-decoration:none;}
+
+/* 탭 페이지 */
+.page{display:none;flex:1;overflow-y:auto;padding:20px 20px 100px;flex-direction:column;gap:16px;}
+.page.active{display:flex;}
+
+/* 공통 섹션 */
+.sec-title{font-size:13px;font-weight:600;color:var(--text-muted);letter-spacing:.3px;padding-left:2px;}
+.card{background:var(--bg-subtle);border:1px solid var(--border);border-radius:20px;padding:20px;}
+
+/* 긴급 배너 */
+.urgent-banner{background:var(--danger-subtle);border:1px solid var(--danger-border);border-radius:16px;padding:14px 16px;cursor:pointer;transition:transform .15s;display:none;animation:fadeUp .3s ease both;}
+.urgent-banner.show{display:block;}
+.urgent-banner:hover{transform:translateY(-1px);}
+.urgent-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.urgent-badge{background:var(--danger);color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;}
+.urgent-title{font-size:14px;font-weight:700;color:var(--danger-text);}
+.urgent-desc{font-size:13px;color:var(--danger-text);opacity:.8;line-height:1.4;}
+.urgent-cta{margin-top:10px;width:100%;height:38px;background:var(--danger);color:white;border:none;border-radius:10px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;}
+
+/* 히어로 카드 */
+.hero-card{background:linear-gradient(145deg,var(--brand-subtle),var(--bg-subtle));border:1px solid var(--brand-border);border-radius:24px;padding:26px 24px;text-align:center;cursor:pointer;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s;animation:fadeUp .4s ease both;}
+.hero-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:var(--brand-border);border-radius:50%;opacity:.25;}
+.hero-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px color-mix(in srgb,var(--brand) 15%,transparent);}
+.hero-card:active{transform:scale(.98);}
+.hero-emoji{font-size:44px;display:block;margin-bottom:10px;}
+.hero-title{font-size:19px;font-weight:800;letter-spacing:-.4px;margin-bottom:5px;}
+.hero-desc{font-size:13px;color:var(--text-sub);line-height:1.5;margin-bottom:18px;}
+.hero-btn{display:inline-flex;align-items:center;gap:6px;height:46px;padding:0 26px;background:var(--brand);color:white;border:none;border-radius:13px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;}
+.hero-btn:hover{background:var(--brand-hover);}
+#receiptInput{display:none;}
+
+/* 냉장고 */
+.fridge-card{background:var(--bg-subtle);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+.fridge-tabs{display:flex;border-bottom:1px solid var(--border);}
+.ftab{flex:1;height:42px;background:none;border:none;font-family:var(--font);font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:color .15s,background .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.ftab.active{color:var(--brand);font-weight:700;background:var(--brand-subtle);}
+.fridge-body{padding:16px;}
+.fridge-empty{text-align:center;padding:20px 0;color:var(--text-muted);font-size:13px;}
+.fridge-empty-icon{font-size:32px;display:block;margin-bottom:6px;}
+.fridge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.fridge-item{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;position:relative;animation:popIn .18s ease both;cursor:pointer;transition:border-color .15s;}
+.fridge-item:hover{border-color:var(--brand-border);}
+.fridge-item.urgent{background:var(--danger-subtle);border-color:var(--danger-border);}
+.fridge-item.warning{background:var(--warn-subtle);border-color:var(--warn-border);}
+.fridge-item-emoji{font-size:20px;display:block;margin-bottom:3px;}
+.fridge-item-name{font-size:11px;font-weight:600;color:var(--text);display:block;}
+.fridge-item-date{font-size:10px;color:var(--text-muted);display:block;margin-top:2px;}
+.fridge-item.urgent .fridge-item-date{color:var(--danger-text);font-weight:700;}
+.fridge-item.warning .fridge-item-date{color:var(--warn-text);font-weight:600;}
+.fridge-item-del{position:absolute;top:4px;right:4px;width:15px;height:15px;background:var(--border);border:none;border-radius:50%;font-size:9px;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;}
+.fridge-item:hover .fridge-item-del{opacity:1;}
+.fridge-add-row{display:flex;gap:8px;margin-top:12px;}
+.fridge-add-select{height:38px;padding:0 10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-family:var(--font);font-size:13px;color:var(--text);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;}
+.fridge-add-input{flex:1;height:38px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color .15s;}
+.fridge-add-input:focus{border-color:var(--brand);}
+.fridge-add-input::placeholder{color:var(--text-muted);}
+.fridge-add-btn{width:38px;height:38px;background:var(--brand);color:white;border:none;border-radius:10px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s;flex-shrink:0;}
+.fridge-add-btn:hover{background:var(--brand-hover);}
+.fridge-add-btn:active{transform:scale(.93);}
+
+/* 빠른 메뉴 */
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.quick-card{background:var(--bg-subtle);border:1px solid var(--border);border-radius:18px;padding:16px 14px;cursor:pointer;transition:transform .15s,border-color .15s;}
+.quick-card:hover{transform:translateY(-2px);border-color:var(--border-hi);}
+.quick-card:active{transform:scale(.97);}
+.quick-icon{font-size:26px;display:block;margin-bottom:8px;}
+.quick-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.quick-desc{font-size:11px;color:var(--text-muted);line-height:1.4;}
+
+/* 식단표 페이지 */
+.meal-plan-empty{text-align:center;padding:40px 20px;color:var(--text-muted);}
+.meal-plan-empty-icon{font-size:48px;display:block;margin-bottom:12px;}
+.gen-btn{width:100%;height:52px;background:var(--brand);color:white;border:none;border-radius:14px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:background .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.gen-btn:hover{background:var(--brand-hover);}
+.gen-btn:active{transform:scale(.98);}
+.meal-day{background:var(--bg-subtle);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;}
+.meal-day-title{font-size:13px;font-weight:700;color:var(--brand-text);margin-bottom:10px;}
+.meal-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start;}
+.meal-label{font-size:11px;font-weight:600;color:var(--text-muted);width:36px;flex-shrink:0;padding-top:2px;}
+.meal-value{font-size:13px;color:var(--text);line-height:1.5;}
+
+/* 식비 통계 페이지 */
+.stat-hero{background:linear-gradient(135deg,var(--brand-subtle),var(--bg-subtle));border:1px solid var(--brand-border);border-radius:20px;padding:24px;text-align:center;}
+.stat-amount{font-size:36px;font-weight:800;color:var(--brand-text);letter-spacing:-1px;}
+.stat-label{font-size:13px;color:var(--text-muted);margin-top:4px;}
+.stat-fun{font-size:14px;color:var(--success-text);font-weight:600;margin-top:8px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-card{background:var(--bg-subtle);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;}
+.stat-card-num{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px;}
+.stat-card-label{font-size:11px;color:var(--text-muted);margin-top:4px;}
+.stat-bar-wrap{background:var(--bg-subtle);border:1px solid var(--border);border-radius:16px;padding:16px;}
+.stat-bar-title{font-size:13px;font-weight:700;margin-bottom:12px;}
+.stat-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.stat-bar-label{font-size:12px;color:var(--text-sub);width:60px;flex-shrink:0;}
+.stat-bar-bg{flex:1;height:8px;background:var(--bg-ui);border-radius:4px;overflow:hidden;}
+.stat-bar-fill{height:100%;background:var(--brand);border-radius:4px;transition:width .6s ease;}
+.stat-bar-val{font-size:11px;color:var(--text-muted);width:50px;text-align:right;flex-shrink:0;}
+.stat-reset-btn{width:100%;height:44px;background:transparent;border:1px solid var(--border);border-radius:12px;font-family:var(--font);font-size:13px;color:var(--text-muted);cursor:pointer;transition:border-color .15s;}
+.stat-reset-btn:hover{border-color:var(--danger-border);color:var(--danger-text);}
+
+/* 오버레이 */
+.overlay{display:none;position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);z-index:100;align-items:center;justify-content:center;flex-direction:column;}
+.overlay.show{display:flex;}
+.overlay-box{background:var(--bg-subtle);border:1px solid var(--border);border-radius:24px;padding:32px 40px;text-align:center;}
+.dots{display:inline-flex;gap:5px;margin-bottom:12px;}
+.dots span{width:8px;height:8px;background:var(--brand);border-radius:50%;animation:db 1.2s infinite ease-in-out both;}
+.dots span:nth-child(2){animation-delay:.15s;}
+.dots span:nth-child(3){animation-delay:.3s;}
+@keyframes db{0%,80%,100%{transform:scale(.55);opacity:.35;}40%{transform:scale(1);opacity:1;}}
+.overlay-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.overlay-desc{font-size:13px;color:var(--text-muted);}
+
+/* 결과 모달 */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--bg);border-radius:28px 28px 0 0;width:100%;max-width:430px;max-height:85vh;overflow-y:auto;padding-bottom:40px;animation:slideUp .3s ease both;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:14px auto 0;}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:18px;font-weight:800;letter-spacing:-.4px;}
+.modal-sub{font-size:13px;color:var(--text-muted);margin-top:3px;}
+.modal-body{padding:20px 24px;}
+.modal-body pre{font-family:var(--font);font-size:14px;line-height:1.85;color:var(--text);white-space:pre-wrap;word-break:keep-all;}
+.modal-close{width:calc(100% - 48px);height:48px;margin:0 24px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:14px;font-family:var(--font);font-size:14px;font-weight:600;color:var(--text-sub);cursor:pointer;transition:border-color .15s;}
+.modal-close:hover{border-color:var(--border-hi);}
+
+/* 영수증 확인 모달 */
+.review-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:250;align-items:flex-end;justify-content:center;}
+.review-bg.show{display:flex;}
+.review-modal{background:var(--bg);border-radius:28px 28px 0 0;width:100%;max-width:430px;max-height:92vh;display:flex;flex-direction:column;animation:slideUp .3s ease both;}
+.review-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.review-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 12px;}
+.review-title{font-size:17px;font-weight:800;letter-spacing:-.4px;margin-bottom:3px;}
+.review-sub{font-size:12px;color:var(--text-muted);}
+/* 원본 영수증 사진 */
+.receipt-preview{padding:10px 20px;flex-shrink:0;display:none;}
+.receipt-preview-label{font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;}
+.receipt-preview img{width:100%;max-height:160px;object-fit:contain;border-radius:12px;border:1px solid var(--border);}
+/* 수정 리스트 */
+.review-list{flex:1;overflow-y:auto;padding:10px 20px;display:flex;flex-direction:column;gap:8px;}
+.review-item{background:var(--bg-subtle);border:1px solid var(--border);border-radius:14px;padding:10px 12px;animation:popIn .15s ease both;transition:opacity .2s;}
+.review-item.removed{opacity:.3;}
+.review-item-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.review-item-emoji{font-size:20px;flex-shrink:0;}
+.review-name-input{flex:1;height:34px;padding:0 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-family:var(--font);font-size:14px;font-weight:600;color:var(--text);outline:none;transition:border-color .15s;}
+.review-name-input:focus{border-color:var(--brand);}
+.review-del-btn{width:30px;height:30px;flex-shrink:0;background:var(--danger-subtle);border:1px solid var(--danger-border);border-radius:8px;color:var(--danger-text);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.review-item-meta{display:flex;gap:6px;flex-wrap:wrap;}
+.review-select{height:28px;padding:0 8px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-family:var(--font);font-size:11px;color:var(--text-sub);outline:none;cursor:pointer;appearance:none;padding-right:18px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' fill='none'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23999' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;}
+.review-price-input{height:28px;width:72px;padding:0 8px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-family:var(--font);font-size:11px;color:var(--text-sub);outline:none;}
+.review-price-input::placeholder{color:var(--text-muted);font-size:10px;}
+/* 누락 추가 버튼 */
+.review-add-row{display:flex;gap:8px;padding:8px 20px 0;}
+.review-add-input{flex:1;height:38px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-family:var(--font);font-size:13px;color:var(--text);outline:none;transition:border-color .15s;}
+.review-add-input:focus{border-color:var(--brand);}
+.review-add-input::placeholder{color:var(--text-muted);}
+.review-add-btn{width:38px;height:38px;background:var(--brand);color:white;border:none;border-radius:10px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.review-footer{padding:10px 20px 32px;display:flex;gap:8px;flex-shrink:0;border-top:1px solid var(--border);}
+.review-confirm{flex:1;height:50px;background:var(--brand);color:white;border:none;border-radius:14px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:background .15s;}
+.review-confirm:hover{background:var(--brand-hover);}
+.review-cancel{height:50px;padding:0 18px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:14px;font-family:var(--font);font-size:14px;font-weight:600;color:var(--text-muted);cursor:pointer;}
+
+/* 영수증 확대 뷰어 */
+.zoom-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;align-items:center;justify-content:center;flex-direction:column;}
+.zoom-bg.show{display:flex;}
+.zoom-container{position:relative;width:100%;height:100%;overflow:hidden;touch-action:none;display:flex;align-items:center;justify-content:center;}
+.zoom-img{max-width:100%;max-height:100%;transform-origin:center center;transition:transform .1s ease;user-select:none;-webkit-user-drag:none;}
+.zoom-bar{position:fixed;bottom:0;left:0;right:0;padding:16px 20px 36px;display:flex;align-items:center;gap:12px;background:linear-gradient(transparent,rgba(0,0,0,.7));}
+.zoom-close{position:fixed;top:20px;right:20px;width:40px;height:40px;background:rgba(255,255,255,.15);border:none;border-radius:50%;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.zoom-btn{width:44px;height:44px;background:rgba(255,255,255,.15);border:none;border-radius:50%;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);flex-shrink:0;transition:background .15s;}
+.zoom-btn:hover{background:rgba(255,255,255,.3);}
+.zoom-scale{flex:1;-webkit-appearance:none;appearance:none;height:4px;background:rgba(255,255,255,.3);border-radius:2px;outline:none;cursor:pointer;}
+.zoom-scale::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:white;border-radius:50%;cursor:pointer;}
+.zoom-hint{position:fixed;top:70px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:12px;white-space:nowrap;}
+
+/* 영수증 미리보기 - 클릭 힌트 */
+.receipt-preview img{cursor:zoom-in;}
+.receipt-zoom-hint{font-size:11px;color:var(--brand-text);margin-top:4px;text-align:center;}
+
+/* 재료 수정 모달 */
+.edit-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:250;align-items:center;justify-content:center;padding:20px;}
+.edit-bg.show{display:flex;}
+.edit-box{background:var(--bg);border-radius:24px;padding:24px;width:100%;max-width:340px;animation:popIn .2s ease both;}
+.edit-title{font-size:16px;font-weight:800;margin-bottom:16px;}
+.edit-field{margin-bottom:12px;}
+.edit-label{font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;padding-left:2px;display:block;}
+.edit-input,.edit-select{width:100%;height:44px;padding:0 14px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:11px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color .15s;appearance:none;}
+.edit-input:focus,.edit-select:focus{border-color:var(--brand);}
+.edit-btns{display:flex;gap:8px;margin-top:16px;}
+.edit-save{flex:1;height:46px;background:var(--brand);color:white;border:none;border-radius:12px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;}
+.edit-save:hover{background:var(--brand-hover);}
+.edit-cancel{height:46px;padding:0 16px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:12px;font-family:var(--font);font-size:14px;font-weight:600;color:var(--text-muted);cursor:pointer;}
+
+/* 도파민 팝업 */
+.dopamine{display:none;position:fixed;inset:0;z-index:300;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);}
+.dopamine.show{display:flex;}
+.dopamine-box{background:var(--bg);border-radius:28px;padding:36px 32px;text-align:center;max-width:300px;width:90%;animation:popIn .3s ease both;}
+.dopamine-emoji{font-size:56px;display:block;margin-bottom:12px;animation:bounce 1s infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.dopamine-title{font-size:20px;font-weight:800;letter-spacing:-.4px;margin-bottom:8px;}
+.dopamine-msg{font-size:14px;color:var(--text-sub);line-height:1.5;margin-bottom:16px;}
+.dopamine-save{font-size:22px;font-weight:800;color:var(--success-text);background:var(--success-subtle);border-radius:12px;padding:8px 20px;display:inline-block;margin-bottom:20px;}
+.dopamine-btn{width:100%;height:48px;background:var(--brand);color:white;border:none;border-radius:14px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;}
+
+/* 바코드 스캔 버튼 */
+.scan-row{display:flex;gap:8px;margin-bottom:10px;}
+.scan-btn{flex:1;height:44px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:12px;font-family:var(--font);font-size:13px;font-weight:600;color:var(--text-sub);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:border-color .15s,background .15s;}
+.scan-btn:hover{border-color:var(--brand-border);background:var(--brand-subtle);color:var(--brand-text);}
+.scan-btn.primary{background:var(--brand);color:white;border-color:var(--brand);}
+.scan-btn.primary:hover{background:var(--brand-hover);}
+
+/* 재료 일괄입력 모달 */
+.bulk-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:250;align-items:flex-end;justify-content:center;}
+.bulk-bg.show{display:flex;}
+.bulk-modal{background:var(--bg);border-radius:28px 28px 0 0;width:100%;max-width:430px;max-height:90vh;display:flex;flex-direction:column;animation:slideUp .3s ease both;}
+.bulk-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.bulk-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 12px;}
+.bulk-title{font-size:17px;font-weight:800;letter-spacing:-.4px;margin-bottom:3px;}
+.bulk-sub{font-size:12px;color:var(--text-muted);}
+.bulk-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px;}
+.bulk-section-title{font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:4px;margin-top:4px;}
+.bulk-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.bulk-chip{padding:6px 12px;background:var(--bg-subtle);border:1.5px solid var(--border);border-radius:100px;font-size:13px;cursor:pointer;transition:all .15s;user-select:none;}
+.bulk-chip.selected{background:var(--brand-subtle);border-color:var(--brand);color:var(--brand-text);font-weight:600;}
+.bulk-custom-row{display:flex;gap:8px;margin-top:4px;}
+.bulk-custom-input{flex:1;height:40px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color .15s;}
+.bulk-custom-input:focus{border-color:var(--brand);}
+.bulk-custom-input::placeholder{color:var(--text-muted);}
+.bulk-custom-btn{width:40px;height:40px;background:var(--brand);color:white;border:none;border-radius:10px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bulk-selected-list{display:flex;flex-wrap:wrap;gap:6px;min-height:36px;padding:10px;background:var(--bg-subtle);border:1px dashed var(--border);border-radius:12px;}
+.bulk-selected-item{padding:4px 10px;background:var(--brand);color:white;border-radius:100px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;cursor:pointer;}
+.bulk-selected-item span{font-size:10px;opacity:.8;}
+.bulk-empty-hint{font-size:12px;color:var(--text-muted);width:100%;text-align:center;padding:4px 0;}
+.bulk-footer{padding:12px 20px 32px;border-top:1px solid var(--border);flex-shrink:0;}
+.bulk-confirm{width:100%;height:50px;background:var(--brand);color:white;border:none;border-radius:14px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:background .15s;}
+.bulk-confirm:hover{background:var(--brand-hover);}
+
+/* 바코드 스캔 모달 */
+.barcode-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;flex-direction:column;align-items:center;justify-content:center;}
+.barcode-bg.show{display:flex;}
+.barcode-box{background:var(--bg);border-radius:24px;padding:28px 24px;width:90%;max-width:340px;text-align:center;}
+.barcode-emoji{font-size:48px;margin-bottom:12px;display:block;}
+.barcode-title{font-size:17px;font-weight:800;margin-bottom:6px;}
+.barcode-desc{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:20px;}
+.barcode-input-row{display:flex;gap:8px;margin-bottom:12px;}
+.barcode-input{flex:1;height:44px;padding:0 14px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:12px;font-family:var(--font);font-size:15px;color:var(--text);outline:none;transition:border-color .15s;}
+.barcode-input:focus{border-color:var(--brand);}
+.barcode-search-btn{height:44px;padding:0 16px;background:var(--brand);color:white;border:none;border-radius:12px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.barcode-result{background:var(--bg-subtle);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;text-align:left;display:none;}
+.barcode-result-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.barcode-result-info{font-size:12px;color:var(--text-muted);}
+.barcode-btns{display:flex;gap:8px;}
+.barcode-add-btn{flex:1;height:44px;background:var(--brand);color:white;border:none;border-radius:12px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;}
+.barcode-close-btn{height:44px;padding:0 16px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:12px;font-family:var(--font);font-size:14px;font-weight:600;color:var(--text-muted);cursor:pointer;}
+
+/* 바텀탭 */
+.bottomnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg);border-top:1px solid var(--border);display:flex;padding:10px 0 20px;z-index:50;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0;}
+.tab.active .tab-icon{color:var(--brand);}
+.tab.active .tab-label{color:var(--brand);font-weight:600;}
+.tab-icon{font-size:22px;color:var(--text-muted);}
+.tab-label{font-size:10px;color:var(--text-muted);font-weight:500;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes popIn{from{transform:scale(.8);opacity:0;}to{transform:scale(1);opacity:1;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- 탑바 -->
+  <div class="topbar">
+    <div class="logo-row">
+      <div class="logo-icon">🧊</div>
+      <span class="logo-text">냉파고</span>
+    </div>
+    <button class="api-btn" onclick="toggleApi()">⚙️</button>
+  </div>
+
+  <!-- API 패널 -->
+  <div class="api-panel" id="apiPanel">
+    <div class="api-row" style="margin-bottom:8px;">
+      <input type="password" id="apiKey" placeholder="Claude API 키 (sk-ant-...)" />
+      <button class="api-save" onclick="saveApi()">저장</button>
+    </div>
+    <div class="api-row" style="margin-bottom:6px;">
+      <input type="password" id="clovaSecretKey" placeholder="CLOVA OCR Secret Key (선택)" />
+    </div>
+    <div class="api-row" style="margin-bottom:6px;">
+      <input type="text" id="clovaInvokeUrl" placeholder="CLOVA Invoke URL (선택)" style="font-size:11px;" />
+      <button class="api-save" onclick="saveClova()">저장</button>
+    </div>
+    <p class="api-hint">💡 CLOVA 입력 시 영수증 정확도 UP · 비용 절감 · <a href="https://console.anthropic.com" target="_blank">Claude 키 발급 →</a></p>
+  </div>
+
+  <!-- ① 홈 페이지 -->
+  <div class="page active" id="page-home">
+    <div class="urgent-banner" id="urgentBanner" onclick="runUrgentMenu()">
+      <div class="urgent-top">
+        <span class="urgent-badge">⚠️ 유통기한 임박</span>
+        <span class="urgent-title" id="urgentTitle"></span>
+      </div>
+      <div class="urgent-desc" id="urgentDesc"></div>
+      <button class="urgent-cta">🍳 이 재료로 지금 바로 요리 추천받기</button>
+    </div>
+
+    <div class="hero-card" onclick="document.getElementById('receiptInput').click()">
+      <span class="hero-emoji">📸</span>
+      <div class="hero-title">영수증 찍으면<br>냉장고 자동 완성</div>
+      <div class="hero-desc">마트 영수증 사진 한 장으로<br>재료를 한번에 등록해요</div>
+      <button class="hero-btn">📷 영수증 불러오기</button>
+    </div>
+    <input type="file" id="receiptInput" accept="image/*" onchange="handleReceipt(event)" />
+
+    <div class="sec-title">✨ 무엇을 도와드릴까요?</div>
+    <div class="quick-grid">
+      <div class="quick-card" onclick="runMenu('오늘 식단')">
+        <span class="quick-icon">🍱</span>
+        <div class="quick-name">오늘 뭐 먹지?</div>
+        <div class="quick-desc">메인반찬 + 국 + 반찬 추천</div>
+      </div>
+      <div class="quick-card" onclick="runMenu('반찬 추천')">
+        <span class="quick-icon">🥬</span>
+        <div class="quick-name">반찬 추천</div>
+        <div class="quick-desc">있는 재료로 만들 수 있는 반찬</div>
+      </div>
+      <div class="quick-card" onclick="switchPage('meal')">
+        <span class="quick-icon">📅</span>
+        <div class="quick-name">일주일 식단표</div>
+        <div class="quick-desc">냉장고 파먹는 식단 생성</div>
+      </div>
+      <div class="quick-card" onclick="runMenu('장보기 리스트')">
+        <span class="quick-icon">🛒</span>
+        <div class="quick-name">장보기 리스트</div>
+        <div class="quick-desc">부족한 재료 자동 작성</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 냉장고 페이지 -->
+  <div class="page" id="page-fridge">
+    <div class="sec-title">🧊 냉장고 지도</div>
+    <div class="fridge-card">
+      <div class="fridge-tabs">
+        <button class="ftab active" onclick="switchFridgeTab('fridge')"  id="tab-fridge">❄️ 냉장</button>
+        <button class="ftab"        onclick="switchFridgeTab('freezer')" id="tab-freezer">🧊 냉동</button>
+        <button class="ftab"        onclick="switchFridgeTab('pantry')"  id="tab-pantry">🌡️ 실온</button>
+      </div>
+      <div class="fridge-body">
+        <div id="fridgeContent"></div>
+        <div class="scan-row">
+          <button class="scan-btn primary" onclick="openBulk()">🥬 냉장고 재료 한번에 추가</button>
+          <button class="scan-btn" onclick="openBarcode()">📦 바코드 스캔</button>
+        </div>
+        <div class="fridge-add-row">
+          <select class="fridge-add-select" id="addZone">
+            <option value="fridge">냉장</option>
+            <option value="freezer">냉동</option>
+            <option value="pantry">실온</option>
+          </select>
+          <input type="text" class="fridge-add-input" id="manualInput" placeholder="재료 이름 직접 입력"
+                 onkeypress="if(event.key==='Enter') addManual()" />
+          <button class="fridge-add-btn" onclick="addManual()">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 식단표 페이지 -->
+  <div class="page" id="page-meal">
+    <div class="sec-title">📅 일주일 식단표</div>
+    <div id="mealPlanContent">
+      <div class="meal-plan-empty">
+        <span class="meal-plan-empty-icon">📅</span>
+        <p style="font-size:14px;margin-bottom:16px;">냉장고 재료로 일주일 식단을<br>자동으로 짜드려요!</p>
+      </div>
+    </div>
+    <button class="gen-btn" onclick="runMenu('일주일 식단')">✨ 일주일 식단 생성하기</button>
+  </div>
+
+  <!-- ④ 식비통계 페이지 -->
+  <div class="page" id="page-stats">
+    <div class="sec-title">📊 이번 달 식비 통계</div>
+    <div id="statsContent"></div>
+  </div>
+
+  <!-- 바텀탭 -->
+  <nav class="bottomnav">
+    <div class="tab active" onclick="switchPage('home')" id="nav-home">
+      <span class="tab-icon">🏠</span><span class="tab-label">홈</span>
+    </div>
+    <div class="tab" onclick="switchPage('fridge')" id="nav-fridge">
+      <span class="tab-icon">🧊</span><span class="tab-label">냉장고</span>
+    </div>
+    <div class="tab" onclick="switchPage('meal')" id="nav-meal">
+      <span class="tab-icon">🍱</span><span class="tab-label">식단표</span>
+    </div>
+    <div class="tab" onclick="switchPage('stats')" id="nav-stats">
+      <span class="tab-icon">📊</span><span class="tab-label">식비통계</span>
+    </div>
+  </nav>
+</div>
+
+<!-- 오버레이 -->
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="overlay-title" id="overlayTitle">분석 중...</div>
+    <div class="overlay-desc"  id="overlayDesc">잠깐만요!</div>
+  </div>
+</div>
+
+<!-- 결과 모달 -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-sub"   id="modalSub"></div>
+    </div>
+    <div class="modal-body"><pre id="modalBody"></pre></div>
+    <button class="modal-close" onclick="closeModal()">닫기</button>
+  </div>
+</div>
+
+<!-- 재료 일괄입력 모달 -->
+<div class="bulk-bg" id="bulkBg">
+  <div class="bulk-modal">
+    <div class="bulk-header">
+      <div class="bulk-handle"></div>
+      <div class="bulk-title">🥬 냉장고 재료 추가</div>
+      <div class="bulk-sub">자주 쓰는 재료를 탭해서 한번에 추가하세요</div>
+    </div>
+    <div class="bulk-body">
+      <div class="bulk-section-title">❄️ 냉장 재료</div>
+      <div class="bulk-chips" id="bulk-fridge-chips"></div>
+      <div class="bulk-section-title" style="margin-top:12px;">🧊 냉동 재료</div>
+      <div class="bulk-chips" id="bulk-freezer-chips"></div>
+      <div class="bulk-section-title" style="margin-top:12px;">🌡️ 실온 재료</div>
+      <div class="bulk-chips" id="bulk-pantry-chips"></div>
+      <div class="bulk-section-title" style="margin-top:14px;">✏️ 직접 입력</div>
+      <div class="bulk-custom-row">
+        <input type="text" class="bulk-custom-input" id="bulkCustomInput" placeholder="재료명 입력 후 + 버튼"
+               onkeypress="if(event.key==='Enter') addBulkCustom()" />
+        <button class="bulk-custom-btn" onclick="addBulkCustom()">+</button>
+      </div>
+      <div class="bulk-section-title" style="margin-top:14px;">✅ 선택된 재료 <span id="bulkCount" style="color:var(--brand);">0개</span></div>
+      <div class="bulk-selected-list" id="bulkSelectedList">
+        <span class="bulk-empty-hint">재료를 탭해서 선택해주세요</span>
+      </div>
+    </div>
+    <div class="bulk-footer">
+      <button class="bulk-confirm" onclick="confirmBulk()">✅ 냉장고에 추가하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 바코드 스캔 모달 -->
+<div class="barcode-bg" id="barcodeBg">
+  <div class="barcode-box">
+    <span class="barcode-emoji">📦</span>
+    <div class="barcode-title">바코드 스캔</div>
+    <div class="barcode-desc">상품 바코드 번호를 입력하거나<br>카메라로 스캔해서 재료를 추가해요</div>
+    <div class="barcode-input-row">
+      <input type="number" class="barcode-input" id="barcodeInput" placeholder="바코드 번호 입력"
+             onkeypress="if(event.key==='Enter') searchBarcode()" />
+      <button class="barcode-search-btn" onclick="searchBarcode()">검색</button>
+    </div>
+    <div class="barcode-result" id="barcodeResult">
+      <div class="barcode-result-name" id="barcodeResultName"></div>
+      <div class="barcode-result-info" id="barcodeResultInfo"></div>
+    </div>
+    <div class="barcode-btns">
+      <button class="barcode-close-btn" onclick="closeBarcode()">닫기</button>
+      <button class="barcode-add-btn" id="barcodeAddBtn" style="display:none;" onclick="addBarcodeItem()">냉장고에 추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- 영수증 확인 모달 -->
+<div class="review-bg" id="reviewBg">
+  <div class="review-modal">
+    <div class="review-header">
+      <div class="review-handle"></div>
+      <div class="review-title">📋 인식 결과 확인</div>
+      <div class="review-sub" id="reviewSub">이름이나 분류가 다르면 직접 수정해주세요</div>
+    </div>
+    <!-- 원본 영수증 사진 -->
+    <div class="receipt-preview" id="receiptPreview">
+      <div class="receipt-preview-label">📄 원본 영수증 (비교하며 확인하세요)</div>
+      <img id="receiptImg" src="" alt="영수증" onclick="openZoom()" />
+      <div class="receipt-zoom-hint">🔍 탭하면 확대돼요</div>
+    </div>
+    <div class="review-list" id="reviewList"></div>
+    <!-- 누락 재료 직접 추가 -->
+    <div class="review-add-row">
+      <input type="text" class="review-add-input" id="reviewAddInput"
+             placeholder="+ 누락된 재료 직접 추가"
+             onkeypress="if(event.key==='Enter') addReviewItem()" />
+      <button class="review-add-btn" onclick="addReviewItem()">+</button>
+    </div>
+    <div class="review-footer">
+      <button class="review-cancel" onclick="closeReview()">취소</button>
+      <button class="review-confirm" onclick="confirmReview()">✅ 냉장고에 추가하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 재료 수정 모달 -->
+<div class="edit-bg" id="editBg">
+  <div class="edit-box">
+    <div class="edit-title">✏️ 재료 수정</div>
+    <div class="edit-field">
+      <label class="edit-label">재료 이름</label>
+      <input type="text" class="edit-input" id="editName" />
+    </div>
+    <div class="edit-field">
+      <label class="edit-label">보관 위치</label>
+      <select class="edit-select" id="editZone">
+        <option value="fridge">❄️ 냉장</option>
+        <option value="freezer">🧊 냉동</option>
+        <option value="pantry">🌡️ 실온</option>
+      </select>
+    </div>
+    <div class="edit-field">
+      <label class="edit-label">유통기한</label>
+      <select class="edit-select" id="editDate">
+        <option value="3일내">⚠️ 3일 이내</option>
+        <option value="1주">1주일</option>
+        <option value="2주">2주일</option>
+        <option value="1달">1달 이상</option>
+        <option value="">모름</option>
+      </select>
+    </div>
+    <div class="edit-field">
+      <label class="edit-label">가격 (원)</label>
+      <input type="number" class="edit-input" id="editPrice" placeholder="예: 3500" />
+    </div>
+    <div class="edit-btns">
+      <button class="edit-cancel" onclick="closeEdit()">취소</button>
+      <button class="edit-save"   onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 영수증 확대 뷰어 -->
+<div class="zoom-bg" id="zoomBg">
+  <button class="zoom-close" onclick="closeZoom()">✕</button>
+  <div class="zoom-hint">핀치로 확대 · 드래그로 이동</div>
+  <div class="zoom-container" id="zoomContainer">
+    <img class="zoom-img" id="zoomImg" src="" alt="영수증 확대" />
+  </div>
+  <div class="zoom-bar">
+    <button class="zoom-btn" onclick="zoomOut()">−</button>
+    <input type="range" class="zoom-scale" id="zoomScale" min="100" max="400" value="100" oninput="setZoom(this.value)" />
+    <button class="zoom-btn" onclick="zoomIn()">+</button>
+    <button class="zoom-btn" onclick="resetZoom()" style="font-size:13px;">↺</button>
+  </div>
+</div>
+
+<!-- 도파민 팝업 -->
+<div class="dopamine" id="dopamine">
+  <div class="dopamine-box">
+    <span class="dopamine-emoji">🎉</span>
+    <div class="dopamine-title">냉파 성공!</div>
+    <div class="dopamine-msg"  id="dopamineMsg"></div>
+    <div class="dopamine-save" id="dopamineSave"></div>
+    <button class="dopamine-btn" onclick="closeDopamine()">최고야! 닫기</button>
+  </div>
+</div>
+
+<script>
+// ── 상태 ──
+let fridge     = JSON.parse(localStorage.getItem('ng_fridge')  || '[]');
+let apiKey     = localStorage.getItem('ng_api') || '';
+let curFridgeTab = 'fridge';
+let savedTotal = parseInt(localStorage.getItem('ng_saved') || '0');
+let mealPlanText = localStorage.getItem('ng_meal') || '';
+
+if (apiKey) document.getElementById('apiKey').value = apiKey;
+const savedClovaKey = localStorage.getItem('clovaSecretKey');
+const savedClovaUrl = localStorage.getItem('clovaInvokeUrl');
+if(savedClovaKey) document.getElementById('clovaSecretKey').value = savedClovaKey;
+if(savedClovaUrl) document.getElementById('clovaInvokeUrl').value = savedClovaUrl;
+
+// ── 이모지 맵 ──
+const EMOJI_MAP = {
+  '계란':'🥚','달걀':'🥚','두부':'🫙','김치':'🥬','돼지':'🥩','소고기':'🥩','쇠고기':'🥩',
+  '닭':'🍗','대파':'🌿','파':'🌿','양파':'🧅','마늘':'🧄','감자':'🥔','당근':'🥕',
+  '시금치':'🥬','버섯':'🍄','콩나물':'🌱','고추':'🌶️','참치':'🐟','어묵':'🍢',
+  '햄':'🥓','소시지':'🌭','라면':'🍜','쌀':'🍚','된장':'🫙','간장':'🫙',
+  '고추장':'🫙','참기름':'🫙','우유':'🥛','치즈':'🧀','두유':'🥛',
+  '새우':'🦐','오징어':'🦑','고등어':'🐟','꽁치':'🐟','멸치':'🐟',
+  '깻잎':'🌿','상추':'🥬','배추':'🥬','무':'🫚','호박':'🎃','브로콜리':'🥦',
+  '밀가루':'🫙','즉석밥':'🍚','햇반':'🍚',
+};
+function getEmoji(name) {
+  for (const [k,v] of Object.entries(EMOJI_MAP)) if(name.includes(k)) return v;
+  return '🥘';
+}
+
+// ── 치환 사전 (AI 전후 필터링) ──
+const NAME_DICT = [
+  ['PB_',''],['행사_',''],['햇_',''],['국내산',''],['구이용',''],
+  ['찌개용',''],['볶음용',''],['무침용',''],['(소)',''],['(대)',''],['(중)',''],
+  [/\d+(g|kg|ml|L|l|입|구|개|팩|봉|병|장)\b/g,''],
+  [/[()（）\[\]]/g,''],
+  ['CJ)',''],['CJ_',''],['오뚜기_',''],['농심_',''],['풀무원_',''],
+  ['한돈_',''],['하림_',''],['서울_',''],['동원_',''],['빙그레_',''],
+  ['백설밀가루','밀가루'],['신라면','라면'],['햇반','즉석밥'],
+];
+function cleanName(name) {
+  let n = name.trim();
+  for (const [from,to] of NAME_DICT) {
+    if (typeof from==='string') n=n.split(from).join(to);
+    else n=n.replace(from,to);
+  }
+  return n.trim();
+}
+
+// ── 탭 전환 ──
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  if (page==='fridge') renderFridge();
+  if (page==='stats')  renderStats();
+  if (page==='meal' && mealPlanText) renderMealPlan(mealPlanText);
+}
+
+// ── API ──
+function toggleApi() { document.getElementById('apiPanel').classList.toggle('show'); }
+function saveClova() {
+  const sk = document.getElementById('clovaSecretKey').value.trim();
+  const url = document.getElementById('clovaInvokeUrl').value.trim();
+  if(sk) localStorage.setItem('clovaSecretKey', sk);
+  if(url) localStorage.setItem('clovaInvokeUrl', url);
+  if(sk || url) {
+    toast('CLOVA OCR 키 저장됐어요 🎉 영수증 인식이 더 정확해져요!');
+    document.getElementById('apiPanel').classList.remove('show');
+  } else {
+    toast('Secret Key와 Invoke URL을 입력해주세요');
+  }
+}
+
+function saveApi() {
+  const v = document.getElementById('apiKey').value.trim();
+  if (!v) return;
+  apiKey = v;
+  localStorage.setItem('ng_api', v);
+  document.getElementById('apiPanel').classList.remove('show');
+  toast('API 키 저장 완료 ✅');
+}
+
+// ── 냉장고 ──
+function saveFridge() { localStorage.setItem('ng_fridge', JSON.stringify(fridge)); }
+
+function renderFridge() {
+  const items = fridge.filter(i=>i.zone===curFridgeTab);
+  const c = document.getElementById('fridgeContent');
+  if (!items.length) {
+    const icons = {fridge:'🫙',freezer:'🧊',pantry:'📦'};
+    const labels = {fridge:'냉장실이 비어있어요',freezer:'냉동실이 비어있어요',pantry:'실온 재료가 없어요'};
+    c.innerHTML=`<div class="fridge-empty"><span class="fridge-empty-icon">${icons[curFridgeTab]}</span>${labels[curFridgeTab]}</div>`;
+  } else {
+    c.innerHTML=`<div class="fridge-grid">${items.map(item=>{
+      const idx=fridge.indexOf(item);
+      const sub = item.price ? item.price.toLocaleString()+'원' : (item.date||'');
+      return `<div class="fridge-item ${item.urgent?'urgent':item.warning?'warning':''}" onclick="openEdit(${idx})">
+        <span class="fridge-item-emoji">${getEmoji(item.name)}</span>
+        <span class="fridge-item-name">${item.name}</span>
+        <span class="fridge-item-date">${sub}</span>
+        <button class="fridge-item-del" onclick="event.stopPropagation();eatItem(${idx})">×</button>
+      </div>`;
+    }).join('')}</div>`;
+  }
+  ['fridge','freezer','pantry'].forEach(zone=>{
+    const count=fridge.filter(i=>i.zone===zone).length;
+    const labels={fridge:'❄️ 냉장',freezer:'🧊 냉동',pantry:'🌡️ 실온'};
+    document.getElementById('tab-'+zone).textContent=labels[zone]+(count?` ${count}`:'');
+  });
+  checkUrgent();
+}
+
+function switchFridgeTab(zone) {
+  curFridgeTab=zone;
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+zone).classList.add('active');
+  renderFridge();
+}
+
+function eatItem(idx) {
+  const item=fridge[idx];
+  const saved=item.price||Math.floor(Math.random()*8000)+5000;
+  savedTotal+=saved;
+  localStorage.setItem('ng_saved',savedTotal);
+  // 통계용 기록
+  const log=JSON.parse(localStorage.getItem('ng_log')||'[]');
+  log.push({name:item.name,price:saved,date:new Date().toLocaleDateString('ko')});
+  localStorage.setItem('ng_log',JSON.stringify(log));
+  fridge.splice(idx,1);
+  saveFridge(); renderFridge();
+  showDopamine(item.name,saved);
+}
+
+function checkUrgent() {
+  const urgents=fridge.filter(i=>i.urgent);
+  const banner=document.getElementById('urgentBanner');
+  if(!urgents.length){banner.classList.remove('show');return;}
+  const names=urgents.map(i=>i.name).join(', ');
+  document.getElementById('urgentTitle').textContent=`${urgents.length}개 재료 주의`;
+  document.getElementById('urgentDesc').textContent=`${names} 유통기한이 얼마 안 남았어요! 오늘 요리에 써보세요 🍳`;
+  banner.classList.add('show');
+}
+
+async function runUrgentMenu() {
+  const urgents=fridge.filter(i=>i.urgent);
+  if(!urgents.length) return;
+  const names=urgents.map(i=>i.name).join(', ');
+  await callAI('🚨 긴급 요리 추천',`냉장고 재료 중 유통기한 임박: ${names}\n오늘 안에 이 재료를 소진할 수 있는 현실적인 한식 요리를 추천해줘.\n"이 재료 오늘 꼭 써야 해요! 이렇게 해먹으면 딱이에요~" 식으로 명분도 줘. 말투는 친근하게.`);
+}
+
+function addManual() {
+  const el=document.getElementById('manualInput');
+  const zone=document.getElementById('addZone').value;
+  const v=el.value.trim();
+  if(!v) return;
+  fridge.push({name:cleanName(v),zone,date:'',urgent:false,warning:false,price:0});
+  saveFridge(); renderFridge();
+  el.value=''; el.focus();
+}
+
+// ── CLOVA OCR 설정 ──
+const CLOVA_SECRET_KEY = localStorage.getItem('clovaSecretKey') || '';
+const CLOVA_INVOKE_URL = localStorage.getItem('clovaInvokeUrl') || '';
+
+// ── 영수증 인식 (CLOVA OCR + Claude 정제) ──
+async function handleReceipt(e) {
+  const file=e.target.files[0];
+  if(!file) return;
+  if(!apiKey){toast('먼저 Claude API 키를 설정해주세요 ⚙️');toggleApi();return;}
+
+  const clovaKey = localStorage.getItem('clovaSecretKey');
+  const clovaUrl = localStorage.getItem('clovaInvokeUrl');
+
+  const previewUrl=URL.createObjectURL(file);
+  showOverlay('📸 영수증 분석 중...','AI가 재료를 읽고 있어요');
+
+  try {
+    let extractedText = '';
+
+    // CLOVA OCR 키가 있으면 CLOVA로 먼저 텍스트 추출
+    if(clovaKey && clovaUrl) {
+      const base64=await toBase64(file);
+      const mediaType=file.type||'image/jpeg';
+      const ext = mediaType.includes('png') ? 'png' : 'jpg';
+
+      const clovaBody = {
+        version: 'V2',
+        requestId: 'naengpago-' + Date.now(),
+        timestamp: Date.now(),
+        images: [{
+          format: ext,
+          name: 'receipt',
+          data: base64
+        }]
+      };
+
+      const clovaRes = await fetch(clovaUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-OCR-SECRET': clovaKey
+        },
+        body: JSON.stringify(clovaBody)
+      });
+
+      if(clovaRes.ok) {
+        const clovaData = await clovaRes.json();
+        // CLOVA 결과에서 텍스트 추출
+        const fields = clovaData.images?.[0]?.receipt?.result;
+        if(fields) {
+          const items = fields.subResults?.[0]?.items || [];
+          const lines = items.map(item => {
+            const name = item.name?.text || '';
+            const price = item.price?.price?.text || '';
+            return price ? `${name} ${price}` : name;
+          }).filter(Boolean);
+          extractedText = lines.join('\n');
+        }
+        // fallback: 전체 텍스트
+        if(!extractedText) {
+          extractedText = clovaData.images?.[0]?.fields
+            ?.map(f => f.inferText).join(' ') || '';
+        }
+      }
+    }
+
+    // Claude로 식재료 정제 (텍스트 or 이미지)
+    let claudeContent;
+    if(extractedText) {
+      // CLOVA로 추출한 텍스트를 Claude에게 정제 요청 (이미지 불필요 → 비용 절감)
+      claudeContent = [{type:'text', text:`아래는 마트 영수증 OCR 텍스트야. 식재료만 추출해줘.\n\n영수증 텍스트:\n${extractedText}\n\n`}];
+    } else {
+      // CLOVA 없으면 기존 방식 (이미지 직접 전송)
+      const base64=await toBase64(file);
+      const mediaType=file.type||'image/jpeg';
+      claudeContent = [
+        {type:'image',source:{type:'base64',media_type:mediaType,data:base64}},
+        {type:'text',text:'아래 영수증 이미지에서 식재료만 추출해줘.\n\n'}
+      ];
+    }
+
+    const promptSuffix = `너는 마트 영수증을 읽고 식재료만 정확히 추출하는 '냉파고 AI'야.
+아래 규칙을 반드시 지켜서 JSON으로만 답해. 다른 텍스트 절대 금지.
+
+【이름 정제 규칙 - 핵심!】
+브랜드명(CJ, 오뚜기, 농심, 풀무원, 한돈, 하림, 서울, 동원, 빙그레),
+무게/용량(500g, 1kg, 1L, 30구), 행사어(햇, PB_, 행사, 할인, 국내산, 구이용, 망, 소, 대)
+→ 전부 제거하고 일반 명사로만.
+
+【이름 정제 예시】
+CJ)백설밀가루1kg → 밀가루 / 햇_양파(망) → 양파
+한돈삼겹살구이용500g → 돼지고기(삼겹살) / 서울우유1L → 우유
+농심신라면5입 → 라면 / 계란(특란)30구 → 계란
+
+【포함】채소/과일, 육류/해산물, 유제품/계란, 두부/어묵/햄 등 가공식품, 양념류, 쌀/라면 등 건식품
+【제외】수세미/랩/호일, 세제/샴푸, 생수/음료/맥주, 과자, 화장지, 종량제봉투
+
+JSON 형식 (다른 텍스트 없이):
+{"summary":{"채소/과일":2,"육류":1},"items":[{"name":"양파","zone":"pantry","date":"2주","urgent":false,"warning":false,"price":2900}]}
+zone: fridge/freezer/pantry
+date: "3일내"/"1주"/"2주"/"1달"
+urgent: date=="3일내"이면 true / warning: date=="1주"이면 true
+price: 실제 금액(숫자). 없으면 0
+식재료 없으면 {"summary":{},"items":[]}`;
+
+    // claudeContent 마지막 텍스트에 프롬프트 추가
+    if(claudeContent[claudeContent.length-1].type === 'text') {
+      claudeContent[claudeContent.length-1].text += promptSuffix;
+    } else {
+      claudeContent.push({type:'text', text: promptSuffix});
+    }
+
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        messages:[{role:'user',content:claudeContent}]
+      })
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error?.message||'오류');
+    const text=data.content[0].text.trim();
+    const json=JSON.parse(text.replace(/```json|```/g,'').trim());
+    json.items=json.items.map(item=>({...item,name:cleanName(item.name)}));
+    hideOverlay();
+    openReview(json.items, json.summary, previewUrl);
+  } catch(err) {
+    hideOverlay();
+    toast('인식 실패: '+err.message);
+  }
+  e.target.value='';
+}
+
+// ── 영수증 확인 모달 ──
+let reviewItems=[];
+
+function openReview(items, summary, previewUrl) {
+  reviewItems=items.map(i=>({...i}));
+  const summaryText=Object.entries(summary||{}).map(([k,v])=>`${k} ${v}개`).join(', ');
+  document.getElementById('reviewSub').textContent=`${items.length}개 인식됨${summaryText?' ('+summaryText+')':''} · 수정 후 추가`;
+  // 원본 사진 표시
+  if(previewUrl){
+    document.getElementById('receiptImg').src=previewUrl;
+    document.getElementById('receiptPreview').style.display='block';
+  }
+  renderReviewList();
+  document.getElementById('reviewBg').classList.add('show');
+}
+
+function renderReviewList() {
+  const list=document.getElementById('reviewList');
+  list.innerHTML=reviewItems.map((item,i)=>`
+    <div class="review-item ${item._removed?'removed':''}" id="ritem-${i}">
+      <div class="review-item-top">
+        <span class="review-item-emoji">${getEmoji(item.name)}</span>
+        <input class="review-name-input" value="${item.name}"
+               oninput="reviewItems[${i}].name=this.value"
+               ${item._removed?'disabled':''} />
+        <button class="review-del-btn" onclick="toggleReviewItem(${i})">${item._removed?'↩':'×'}</button>
+      </div>
+      <div class="review-item-meta">
+        <select class="review-select" onchange="reviewItems[${i}].zone=this.value" ${item._removed?'disabled':''}>
+          <option value="fridge"  ${item.zone==='fridge' ?'selected':''}>❄️냉장</option>
+          <option value="freezer" ${item.zone==='freezer'?'selected':''}>🧊냉동</option>
+          <option value="pantry"  ${item.zone==='pantry' ?'selected':''}>🌡️실온</option>
+        </select>
+        <select class="review-select" onchange="reviewItems[${i}].date=this.value;reviewItems[${i}].urgent=this.value==='3일내';reviewItems[${i}].warning=this.value==='1주';" ${item._removed?'disabled':''}>
+          <option value="3일내" ${item.date==='3일내'?'selected':''}>⚠️3일내</option>
+          <option value="1주"   ${item.date==='1주'  ?'selected':''}>1주</option>
+          <option value="2주"   ${item.date==='2주'  ?'selected':''}>2주</option>
+          <option value="1달"   ${item.date==='1달'  ?'selected':''}>1달</option>
+          <option value=""      ${!item.date         ?'selected':''}>모름</option>
+        </select>
+        <input class="review-price-input" type="number" value="${item.price||''}" placeholder="가격(원)"
+               oninput="reviewItems[${i}].price=parseInt(this.value)||0" ${item._removed?'disabled':''} />
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleReviewItem(i){reviewItems[i]._removed=!reviewItems[i]._removed;renderReviewList();}
+
+function addReviewItem(){
+  const el=document.getElementById('reviewAddInput');
+  const v=el.value.trim();
+  if(!v) return;
+  reviewItems.push({name:cleanName(v),zone:'fridge',date:'',urgent:false,warning:false,price:0});
+  renderReviewList();
+  el.value='';
+}
+
+function confirmReview(){
+  const toAdd=reviewItems.filter(i=>!i._removed).map(({_removed,...rest})=>rest);
+  if(!toAdd.length){toast('추가할 재료가 없어요!');return;}
+  fridge=[...fridge,...toAdd];
+  saveFridge(); renderFridge();
+  closeReview();
+  toast(`${toAdd.length}개 재료가 냉장고에 추가됐어요 🎉`);
+  switchPage('fridge');
+}
+
+function closeReview(){
+  document.getElementById('reviewBg').classList.remove('show');
+  document.getElementById('receiptPreview').style.display='none';
+  reviewItems=[];
+}
+
+// ── 영수증 확대 뷰어 ──
+let zoomLevel = 100;
+let isDragging = false;
+let dragStart = {x:0, y:0};
+let translate = {x:0, y:0};
+let lastTranslate = {x:0, y:0};
+
+function openZoom() {
+  const src = document.getElementById('receiptImg').src;
+  if (!src) return;
+  document.getElementById('zoomImg').src = src;
+  zoomLevel = 100;
+  translate = {x:0, y:0};
+  applyZoom();
+  document.getElementById('zoomScale').value = 100;
+  document.getElementById('zoomBg').classList.add('show');
+  // 핀치 줌 이벤트
+  setupPinch();
+  // 드래그 이벤트
+  setupDrag();
+}
+
+function closeZoom() {
+  document.getElementById('zoomBg').classList.remove('show');
+  cleanupPinch();
+}
+
+function applyZoom() {
+  const img = document.getElementById('zoomImg');
+  img.style.transform = `translate(${translate.x}px, ${translate.y}px) scale(${zoomLevel/100})`;
+  document.getElementById('zoomScale').value = zoomLevel;
+}
+
+function zoomIn()  { zoomLevel = Math.min(400, zoomLevel + 30); applyZoom(); }
+function zoomOut() { zoomLevel = Math.max(100, zoomLevel - 30); if(zoomLevel<=100) translate={x:0,y:0}; applyZoom(); }
+function resetZoom() { zoomLevel=100; translate={x:0,y:0}; applyZoom(); }
+function setZoom(v) { zoomLevel=parseInt(v); if(zoomLevel<=100) translate={x:0,y:0}; applyZoom(); }
+
+function setupDrag() {
+  const img = document.getElementById('zoomImg');
+  img.onmousedown = e => { isDragging=true; dragStart={x:e.clientX-translate.x, y:e.clientY-translate.y}; };
+  img.ontouchstart = e => { if(e.touches.length===1){ isDragging=true; dragStart={x:e.touches[0].clientX-translate.x, y:e.touches[0].clientY-translate.y}; }};
+  document.getElementById('zoomBg').onmousemove = e => { if(!isDragging||zoomLevel<=100) return; translate={x:e.clientX-dragStart.x, y:e.clientY-dragStart.y}; applyZoom(); };
+  document.getElementById('zoomBg').ontouchmove = e => { if(e.touches.length===1&&isDragging&&zoomLevel>100){ translate={x:e.touches[0].clientX-dragStart.x, y:e.touches[0].clientY-dragStart.y}; applyZoom(); }};
+  document.getElementById('zoomBg').onmouseup = () => { isDragging=false; };
+  document.getElementById('zoomBg').ontouchend = () => { isDragging=false; };
+}
+
+let pinchStartDist = 0;
+let pinchStartZoom = 100;
+function setupPinch() {
+  const c = document.getElementById('zoomContainer');
+  c.addEventListener('touchstart', onPinchStart, {passive:true});
+  c.addEventListener('touchmove',  onPinchMove,  {passive:true});
+}
+function cleanupPinch() {
+  const c = document.getElementById('zoomContainer');
+  c.removeEventListener('touchstart', onPinchStart);
+  c.removeEventListener('touchmove',  onPinchMove);
+}
+function onPinchStart(e) { if(e.touches.length===2){ pinchStartDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); pinchStartZoom=zoomLevel; }}
+function onPinchMove(e)  { if(e.touches.length===2){ const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); zoomLevel=Math.min(400,Math.max(100,Math.round(pinchStartZoom*(d/pinchStartDist)))); applyZoom(); }}
+
+// ── 재료 수정 모달 ──
+let editIdx=-1;
+function openEdit(idx){
+  editIdx=idx;
+  const item=fridge[idx];
+  document.getElementById('editName').value=item.name;
+  document.getElementById('editZone').value=item.zone||'fridge';
+  document.getElementById('editDate').value=item.date||'';
+  document.getElementById('editPrice').value=item.price||'';
+  document.getElementById('editBg').classList.add('show');
+}
+function saveEdit(){
+  if(editIdx<0) return;
+  const name=document.getElementById('editName').value.trim();
+  const zone=document.getElementById('editZone').value;
+  const date=document.getElementById('editDate').value;
+  const price=parseInt(document.getElementById('editPrice').value)||0;
+  if(!name){toast('이름을 입력해주세요');return;}
+  fridge[editIdx]={...fridge[editIdx],name,zone,date,price,urgent:date==='3일내',warning:date==='1주'};
+  saveFridge(); renderFridge();
+  closeEdit(); toast('수정됐어요 ✅');
+}
+function closeEdit(){document.getElementById('editBg').classList.remove('show');editIdx=-1;}
+
+// ── 메뉴 추천 ──
+const KOREAN_MENU_DB=`
+【국/찌개류】김치찌개, 된장찌개, 순두부찌개, 부대찌개, 미역국, 콩나물국, 북엇국,
+시금치된장국, 두부된장국, 감자국, 무국, 계란국, 어묵국, 동태찌개, 고등어찌개
+
+【메인반찬-볶음/조림】제육볶음, 닭볶음탕, 오징어볶음, 어묵볶음, 감자조림, 두부조림,
+고등어조림, 꽁치조림, 멸치볶음, 버섯볶음, 애호박볶음, 소시지볶음, 햄볶음, 참치김치볶음, 스팸볶음
+
+【메인반찬-구이/전】삼겹살구이, 닭갈비, 계란말이, 계란후라이, 두부부침, 김치전, 파전,
+호박전, 감자전, 동그랑땡, 고등어구이, 생선구이
+
+【나물/무침】시금치나물, 콩나물무침, 도라지무침, 숙주나물, 오이무침, 무생채, 미역줄기볶음
+
+【한그릇】비빔밥, 볶음밥, 국밥, 라면, 우동
+`;
+
+const MENU_RULES=`
+【절대 규칙】
+1. 위 메뉴 DB에 있는 요리만 추천. 창작 요리 절대 금지.
+2. 재료를 억지로 전부 쓰려 하지 마. 자연스러운 조합만.
+3. 한국 가정에서 실제로 자주 해먹는 메뉴만.
+4. 메추리알+부추전 같은 억지 조합 절대 금지.
+5. 기본 양념(간장, 된장, 고추장, 마늘, 파, 소금, 참기름)은 있다고 가정.
+`;
+
+async function runMenu(type){
+  if(!apiKey){toast('먼저 API 키를 설정해주세요 ⚙️');toggleApi();return;}
+  if(!fridge.length){toast('먼저 냉장고에 재료를 추가해주세요 🧊');return;}
+
+  const ingList=fridge.map(i=>i.name).join(', ');
+  const urgentList=fridge.filter(i=>i.urgent).map(i=>i.name).join(', ');
+
+  const prompts={
+    '오늘 식단':`${MENU_RULES}\n${KOREAN_MENU_DB}\n냉장고 재료: ${ingList}\n${urgentList?`⚠️ 유통기한 임박: ${urgentList} → 우선 활용해줘!`:''}\n오늘 저녁 한식 식단: 메인반찬 1개 + 국/찌개 1개 + 반찬 2개.\n각 요리 조리법 3~4줄. 말투 친근하게.`,
+    '반찬 추천':`${MENU_RULES}\n${KOREAN_MENU_DB}\n냉장고 재료: ${ingList}\n만들 수 있는 한식 반찬 5가지. 각 반찬: 재료, 조리시간, 난이도(쉬움/보통/어려움). 말투 친근하게.`,
+    '일주일 식단':`${MENU_RULES}\n${KOREAN_MENU_DB}\n냉장고 재료: ${ingList}\n${urgentList?`⚠️ 유통기한 임박: ${urgentList} → 이번 주 초반에 써줘!`:''}\n일주일 저녁 식단표. 월~일 / 메인반찬+국/찌개+반찬 1개. 유통기한 짧은 것 먼저. 말투 친근하게.`,
+    '장보기 리스트':`냉장고 재료: ${ingList}\n이번 주 장보기 리스트. 집에 있는 것 제외, 부족한 것만.\n카테고리별(채소/육류/생선/냉동/기타). 예상 금액도. 말투 친근하게.`
+  };
+
+  const titles={'오늘 식단':'🍱 오늘의 식단 추천','반찬 추천':'🥬 반찬 추천','일주일 식단':'📅 일주일 식단표','장보기 리스트':'🛒 장보기 리스트'};
+
+  const result=await callAI(titles[type], prompts[type]);
+
+  // 식단표 결과는 식단표 페이지에도 저장
+  if(type==='일주일 식단' && result){
+    mealPlanText=result;
+    localStorage.setItem('ng_meal',result);
+    renderMealPlan(result);
+  }
+}
+
+async function callAI(title, prompt){
+  showOverlay('🤔 생각 중...','AI가 최적 메뉴를 고르고 있어요');
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error?.message||'오류');
+    const text=data.content[0].text;
+    hideOverlay();
+    openModal(title,`냉장고 재료 ${fridge.length}개 기반`,text);
+    return text;
+  } catch(err){
+    hideOverlay();
+    toast('오류: '+err.message);
+    return null;
+  }
+}
+
+// ── 식단표 렌더링 ──
+function renderMealPlan(text){
+  const c=document.getElementById('mealPlanContent');
+  if(!text){c.innerHTML=`<div class="meal-plan-empty"><span class="meal-plan-empty-icon">📅</span><p style="font-size:14px;">아직 식단표가 없어요</p></div>`;return;}
+  // 텍스트를 카드로 변환
+  const days=['월','화','수','목','금','토','일'];
+  let html='';
+  const lines=text.split('\n');
+  let curDay='';let curLines=[];
+  function flushDay(){
+    if(!curDay) return;
+    html+=`<div class="meal-day"><div class="meal-day-title">${curDay}요일</div>`;
+    curLines.forEach(l=>{
+      if(l.trim()){
+        const parts=l.split(':');
+        if(parts.length>1) html+=`<div class="meal-row"><span class="meal-label">${parts[0].trim()}</span><span class="meal-value">${parts.slice(1).join(':').trim()}</span></div>`;
+        else html+=`<div class="meal-row"><span class="meal-value">${l.trim()}</span></div>`;
+      }
+    });
+    html+='</div>';curLines=[];
+  }
+  lines.forEach(line=>{
+    const dayMatch=days.find(d=>line.includes(d+'요일')||line.includes(d+'월')||line.startsWith(d+'.'));
+    if(dayMatch){flushDay();curDay=dayMatch;curLines=[];}
+    else{curLines.push(line);}
+  });
+  flushDay();
+  c.innerHTML=html||`<div style="padding:16px;font-size:14px;line-height:1.8;white-space:pre-wrap;">${text}</div>`;
+}
+
+// ── 식비 통계 ──
+function renderStats(){
+  const c=document.getElementById('statsContent');
+  const log=JSON.parse(localStorage.getItem('ng_log')||'[]');
+  const thisMonth=new Date().getMonth();
+  const monthLog=log.filter(l=>{
+    const d=new Date(l.date.replace(/\./g,'-'));
+    return d.getMonth()===thisMonth;
+  });
+  const total=monthLog.reduce((s,l)=>s+l.price,0);
+  const count=monthLog.length;
+  const chicken=Math.floor(total/20000);
+  const coffee=Math.floor(total/5000);
+
+  // 카테고리별 합산
+  const catMap={};
+  monthLog.forEach(l=>{
+    const cat=getCat(l.name);
+    catMap[cat]=(catMap[cat]||0)+l.price;
+  });
+  const maxCat=Math.max(...Object.values(catMap),1);
+
+  let html=`
+  <div class="stat-hero">
+    <div class="stat-amount">${total.toLocaleString()}원</div>
+    <div class="stat-label">이번 달 냉파 절약 금액</div>
+    ${total>0?`<div class="stat-fun">치킨 ${chicken}마리 🍗 또는 커피 ${coffee}잔 ☕ 값이에요!</div>`:''}
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-card-num">${count}번</div>
+      <div class="stat-card-label">이번 달 냉파 횟수</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-num">${count>0?Math.round(total/count).toLocaleString():0}원</div>
+      <div class="stat-card-label">1회 평균 절약</div>
+    </div>
+  </div>`;
+
+  if(Object.keys(catMap).length){
+    html+=`<div class="stat-bar-wrap"><div class="stat-bar-title">카테고리별 절약</div>`;
+    Object.entries(catMap).sort((a,b)=>b[1]-a[1]).forEach(([cat,amt])=>{
+      const pct=Math.round(amt/maxCat*100);
+      html+=`<div class="stat-bar-row">
+        <span class="stat-bar-label">${cat}</span>
+        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${pct}%"></div></div>
+        <span class="stat-bar-val">${amt.toLocaleString()}원</span>
+      </div>`;
+    });
+    html+='</div>';
+  }
+
+  if(total===0){
+    html+=`<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:14px;">
+      아직 기록이 없어요.<br>재료를 먹으면 자동으로 통계가 쌓여요! 🥬
+    </div>`;
+  }
+
+  html+=`<button class="stat-reset-btn" onclick="resetStats()">통계 초기화</button>`;
+  c.innerHTML=html;
+}
+
+function getCat(name){
+  if(['돼지','소고기','닭','새우','오징어','고등어','참치','어묵','햄','소시지'].some(k=>name.includes(k))) return '육류/해산물';
+  if(['양파','감자','당근','시금치','버섯','콩나물','대파','배추','무','호박','깻잎','상추'].some(k=>name.includes(k))) return '채소/과일';
+  if(['계란','달걀','우유','치즈'].some(k=>name.includes(k))) return '유제품/계란';
+  if(['두부','어묵','김치','햇반','즉석밥','라면'].some(k=>name.includes(k))) return '가공식품';
+  return '기타';
+}
+
+function resetStats(){
+  if(!confirm('통계를 초기화할까요?')) return;
+  localStorage.removeItem('ng_log');
+  localStorage.removeItem('ng_saved');
+  savedTotal=0;
+  renderStats();
+  toast('통계가 초기화됐어요');
+}
+
+// ── 모달 ──
+function openModal(title,sub,body){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalSub').textContent=sub;
+  document.getElementById('modalBody').textContent=body;
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeModal(){document.getElementById('modalBg').classList.remove('show');}
+
+// ── 도파민 ──
+function showDopamine(name,saved){
+  const msgs=[`${name} 냉파 완료! 배달 안 시키고 버텼어요 💪`,`${name} 처리 완료! 오늘도 성공 🏆`,`${name} 해치웠다! 유통기한 사수 🥳`];
+  document.getElementById('dopamineMsg').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  document.getElementById('dopamineSave').textContent=`💰 ${saved.toLocaleString()}원 방어 성공!`;
+  document.getElementById('dopamine').classList.add('show');
+}
+function closeDopamine(){document.getElementById('dopamine').classList.remove('show');}
+
+// ── 오버레이 ──
+function showOverlay(t,d){document.getElementById('overlayTitle').textContent=t;document.getElementById('overlayDesc').textContent=d;document.getElementById('overlay').classList.add('show');}
+function hideOverlay(){document.getElementById('overlay').classList.remove('show');}
+
+// ── 토스트 ──
+function toast(msg){
+  const t=document.createElement('div');
+  t.style.cssText=`position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--sand-12);color:var(--sand-1);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:500;z-index:999;white-space:nowrap;animation:fadeUp .2s ease both;font-family:var(--font);`;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2800);
+}
+
+// ── 유틸 ──
+function toBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});}
+
+// ── 자주 쓰는 재료 DB ──
+const COMMON_INGREDIENTS = {
+  fridge: [
+    '계란','대파','양파','두부','김치','당근','시금치','버섯','콩나물','깻잎',
+    '상추','애호박','오이','고추','파프리카','브로콜리','우유','치즈',
+    '돼지고기','소고기','닭고기','어묵','햄','소시지','두유','요거트',
+    '참치캔','고등어','오징어','새우','게맛살'
+  ],
+  freezer: [
+    '냉동만두','냉동밥','냉동새우','냉동오징어','냉동삼겹살','냉동닭','아이스크림',
+    '냉동야채믹스','냉동완자','냉동피자','냉동떡','고추(냉동)','냉동블루베리'
+  ],
+  pantry: [
+    '쌀','라면','밀가루','된장','고추장','간장','참기름','식용유','소금','설탕',
+    '마늘','생강','감자','고구마','양파(망)','사과','바나나','귤',
+    '참치캔','햇반','스팸','식빵','과자','커피'
+  ]
+};
+
+let bulkSelected = []; // {name, zone}
+
+function openBulk() {
+  bulkSelected = [];
+  renderBulkChips();
+  renderBulkSelected();
+  document.getElementById('bulkBg').classList.add('show');
+}
+
+function renderBulkChips() {
+  ['fridge','freezer','pantry'].forEach(zone => {
+    const container = document.getElementById(`bulk-${zone}-chips`);
+    container.innerHTML = COMMON_INGREDIENTS[zone].map(name => {
+      const isSelected = bulkSelected.some(i => i.name === name && i.zone === zone);
+      return `<div class="bulk-chip ${isSelected?'selected':''}" onclick="toggleBulkChip('${name}','${zone}')">${getEmoji(name)} ${name}</div>`;
+    }).join('');
+  });
+}
+
+function toggleBulkChip(name, zone) {
+  const idx = bulkSelected.findIndex(i => i.name === name && i.zone === zone);
+  if (idx >= 0) bulkSelected.splice(idx, 1);
+  else bulkSelected.push({name, zone, date:'', urgent:false, warning:false, price:0});
+  renderBulkChips();
+  renderBulkSelected();
+}
+
+function addBulkCustom() {
+  const el = document.getElementById('bulkCustomInput');
+  const v = cleanName(el.value.trim());
+  if (!v) return;
+  if (!bulkSelected.some(i => i.name === v)) {
+    bulkSelected.push({name:v, zone:'fridge', date:'', urgent:false, warning:false, price:0});
+    renderBulkSelected();
+  }
+  el.value = ''; el.focus();
+}
+
+function renderBulkSelected() {
+  const list = document.getElementById('bulkSelectedList');
+  const count = document.getElementById('bulkCount');
+  count.textContent = `${bulkSelected.length}개`;
+  if (!bulkSelected.length) {
+    list.innerHTML = '<span class="bulk-empty-hint">재료를 탭해서 선택해주세요</span>';
+    return;
+  }
+  list.innerHTML = bulkSelected.map((item,i) =>
+    `<div class="bulk-selected-item" onclick="removeBulkItem(${i})">
+      ${getEmoji(item.name)} ${item.name} <span>×</span>
+    </div>`
+  ).join('');
+}
+
+function removeBulkItem(i) {
+  bulkSelected.splice(i, 1);
+  renderBulkChips();
+  renderBulkSelected();
+}
+
+function confirmBulk() {
+  if (!bulkSelected.length) { toast('재료를 선택해주세요!'); return; }
+  fridge = [...fridge, ...bulkSelected];
+  saveFridge(); renderFridge();
+  document.getElementById('bulkBg').classList.remove('show');
+  toast(`${bulkSelected.length}개 재료가 냉장고에 추가됐어요 🎉`);
+  bulkSelected = [];
+}
+
+// ── 바코드 스캔 ──
+let barcodeItem = null;
+
+function openBarcode() {
+  document.getElementById('barcodeInput').value = '';
+  document.getElementById('barcodeResult').style.display = 'none';
+  document.getElementById('barcodeAddBtn').style.display = 'none';
+  barcodeItem = null;
+  document.getElementById('barcodeBg').classList.add('show');
+  setTimeout(() => document.getElementById('barcodeInput').focus(), 300);
+}
+
+function closeBarcode() {
+  document.getElementById('barcodeBg').classList.remove('show');
+}
+
+async function searchBarcode() {
+  const code = document.getElementById('barcodeInput').value.trim();
+  if (!code) { toast('바코드 번호를 입력해주세요'); return; }
+  if (!apiKey) { toast('먼저 API 키를 설정해주세요 ⚙️'); closeBarcode(); toggleApi(); return; }
+
+  showOverlay('📦 상품 검색 중...', '바코드로 식재료를 찾고 있어요');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        messages: [{role:'user', content:`바코드 번호 ${code}에 해당하는 한국 마트 식품이 있다면 알려줘.
+식재료인 경우에만 아래 JSON으로 답해. 식재료가 아니거나 모르면 {"found":false} 만 답해.
+{"found":true,"name":"양파","category":"채소/과일","zone":"pantry","brand":"농협","weight":"1kg"}
+name은 브랜드/무게 없이 일반 명사로만.`}]
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || '오류');
+    const text = data.content[0].text.trim();
+    const json = JSON.parse(text.replace(/```json|```/g,'').trim());
+    hideOverlay();
+    if (!json.found) {
+      toast('이 바코드의 식재료를 찾지 못했어요 😅');
+      return;
+    }
+    barcodeItem = {name: cleanName(json.name), zone: json.zone||'fridge', date:'', urgent:false, warning:false, price:0};
+    document.getElementById('barcodeResultName').textContent = `${getEmoji(barcodeItem.name)} ${barcodeItem.name}`;
+    document.getElementById('barcodeResultInfo').textContent = `${json.brand||''} ${json.weight||''} · ${json.category||''}`.trim();
+    document.getElementById('barcodeResult').style.display = 'block';
+    document.getElementById('barcodeAddBtn').style.display = 'flex';
+  } catch(err) {
+    hideOverlay();
+    toast('검색 실패: ' + err.message);
+  }
+}
+
+function addBarcodeItem() {
+  if (!barcodeItem) return;
+  fridge.push(barcodeItem);
+  saveFridge(); renderFridge();
+  closeBarcode();
+  toast(`${barcodeItem.name} 추가됐어요 🎉`);
+  barcodeItem = null;
+}
+
+// ── 초기화 ──
+renderFridge();
+if(mealPlanText) renderMealPlan(mealPlanText);
+</script>
+</body>
+</html>
